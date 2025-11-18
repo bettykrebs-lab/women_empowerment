@@ -3,7 +3,10 @@ title: "Description"
 author: "Betty Krebs & Marilys Guiban"
 format: html
 ---
+##Github 
+We worked in the following github repositery https://github.com/bettykrebs-lab/women_empowerment.git
 
+##Initialisation
 ```{r}
 library(here)
 library(ggplot2)
