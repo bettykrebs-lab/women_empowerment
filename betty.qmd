@@ -1,0 +1,15 @@
+---
+title: "betty"
+author: "Betty Krebs"
+format: html
+---
+
+```{r}
+here::i_am(Womenempowerment.Rproj)
+library(here)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(vroom)
+```
+
