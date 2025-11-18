@@ -5,11 +5,21 @@ format: html
 ---
 
 ```{r}
-here::i_am(Womenempowerment.Rproj)
+here::i_am("Womenempowerment.Rproj")
 library(here)
 library(ggplot2)
 library(dplyr)
 library(tidyr)
 library(vroom)
+```
+
+#Initialisation : 
+Converting `mpi`from .xlsx to .csv
+```{r}
+library(readxl)
+GMPI <- read_excel("~/dm-final-project/mpi.xlsx")
+write.csv(GMPI, "~/dm-final-project/mpi.csv", row.names = FALSE)
+
+GMPI_vroom <- vroom("~/dm-final-project/mpi.csv")
 ```
 
