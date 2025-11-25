@@ -18,8 +18,33 @@ Converting `mpi`from .xlsx to .csv
 ```{r}
 library(readxl)
 GMPI <- read_excel("~/dm-final-project/mpi.xlsx")
-write.csv(GMPI, "~/dm-final-project/mpi.csv", row.names = FALSE)
-
+write.csv(GMPI, "C:/Users/bkreb/Documents/mpi.csv", row.names = FALSE)
 GMPI_vroom <- vroom("~/dm-final-project/mpi.csv")
 ```
+##Dataset Empowerment 
 
+###Short description of the source
+
+This dataset also comes from the World Health Organization, which issues the
+survey-based women's empowerment index (SWPER). 
+From this survey are drawn 9 indicators,  distributed across 3 domains : 
+-the *social independence domain* : women are classified according to their empowerment ie women with high, medium or low empowerment in the social independence domain
+-the *decision-making domain* : the dataset determines women with high empowerment in this domain, and with medium or low empowerment.
+-the *violence domain* : women are again classified whether they benefit from high, medium or low empowerment in this domain. 
+
+Those 9 indicators are disaggregated by age (with two subgroups 15-19yo and 20-49yo), economic status (determined within the country by calculating quintiles and deciles of the population), education (highest level of education reached by the women), place of residence and subnational region.
+
+###Table which gives basic information about the data file
+
+```{r}
+
+```
+
+
+###The most important variables 
+
+##Description of the data joining and cleaning 
+
+##Description of our research question 
+
+##Graphical representation of our main target variable 

@@ -18,7 +18,7 @@ library(openxlsx)
 ```
 
 ```{r}
-GMPI <- vroom(here("mpi.csv"))
+GMPI <- vroom(here("gmpi.csv"))
 ```
 
 ```{r}
