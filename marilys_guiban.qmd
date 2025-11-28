@@ -4,7 +4,29 @@ author: "Marilys Guiban"
 format: html
 ---
 
-##Github We worked in the following github repositery https://github.com/bettykrebs-lab/women_empowerment.git
+
+
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+1 + 1
+```
+
+You can add options to executable code like this
+
+```{r}
+#| echo: false
+2 * 2
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).git status
 
 ##Initialisation
 
@@ -216,24 +238,3 @@ For all these variables we decided to keep - the estimate coefficient giving an 
 ### Dataset New firms
 
 In this dataset we keep everything but we will mainly look at the new registered company. https://www.worldbank.org/en/programs/entrepreneurship/methodology#:\~:text=New%20business%20density%20rate%3A%20The,%2D64)%20per%20calendar%20year.
-
-## Quarto
-
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
-
-## Running Code
-
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
-
-```{r}
-1 + 1
-```
-
-You can add options to executable code like this
-
-```{r}
-#| echo: false
-2 * 2
-```
-
-The `echo: false` option disables the printing of code (only output is displayed).
