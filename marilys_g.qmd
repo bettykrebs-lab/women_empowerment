@@ -1,32 +1,13 @@
 ---
+title: "marilys_gfinal"
+author: "Marilys Guiban"
+format: html
+---
+---
 title: "Marilys's part"
 author: "Marilys Guiban"
 format: html
 ---
-
-
-
-
-## Quarto
-
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
-
-## Running Code
-
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
-
-```{r}
-1 + 1
-```
-
-You can add options to executable code like this
-
-```{r}
-#| echo: false
-2 * 2
-```
-
-The `echo: false` option disables the printing of code (only output is displayed).git status
 
 ##Initialisation
 
@@ -52,18 +33,6 @@ Empowerment <- vroom("women_inequalities.csv")
 WBL <- vroom("WB_WBL.csv")
 ```
 
-## Dataset GMPI
-
-The GMPI is the global multidimensional poverty index. This index is aiming at evaluating poverty around the world. This dataset contains the data for the Multidimensional Poverty Index (MPI) and the incidence of multidimensional poverty disaggregated by age, ethnicity, and place of residence and subnational region.
-
-The dataset contains 118 889 observations.
-
-The MPI disaggregated by age, place of residence and subnational region is published by the OPHI (Oxford Poverty and Human development initiative) while MPI disaggregated by ethnicity is published each year in a report from the UNPD.
-
-The dataset GMPI was updated in June 2024 and it covers 89 countries.
-
-Sources : https://www.who.int/data/sets/health-inequality-monitor-dataset#mpi To download the data click on : "data and metadata".
-
 # Other - new idea
 
 title: "Project DM" author: "Marilys Guiban" format: html editor: markdown: wrap: 72 ---
@@ -78,9 +47,70 @@ library(knitr)
 
 install.packages("openxlsx")
 library(openxlsx)
+
+GMPI <- vroom(here("GMPI.csv"))
+Womensempowerment <- read.xlsx("data.xlsx")
  
 ```
 
+```{r}
+# --- Create a table with column names and types ---
+columns_summary <- tibble(
+  Column_Name = names(GMPI),
+  Column_Type = sapply(GMPI, class)  # numeric, character, logical, etc.
+)
+
+# --- Add dataset-level info as separate "rows" if desired ---
+dataset_info <- tibble(
+  Column_Name = c("Number of Rows", "Number of Columns"),
+  Column_Type = c(nrow(GMPI), ncol(GMPI))  # use numeric here
+)
+
+# Optional: convert all values to character for a single table
+dataset_info <- dataset_info %>% mutate(Column_Type = as.character(Column_Type))
+columns_summary <- columns_summary %>% mutate(Column_Type = as.character(Column_Type))
+
+# Combine into one table
+full_summary <- bind_rows(dataset_info, columns_summary)
+
+# --- Display nicely with knitr::kable ---
+gt::gt(full_summary, caption = "Summary of GMPI Dataset: Dataset Info and Column Details")
+
+```
+
+```{r}
+GMPI %>%
+  distinct(subg) %>%
+  arrange(subg)  # optional: sort them
+```
+
+dplyr, ggplot, tydr (especially joining the data), adding github, difficulties in the file format (semi column rather than comas), meticulous when the data is uploaded) before loading see that numerical values,
+
+There will be no explanation on how to merge 2 files, decimal mark of the file, vérifier que les données sont bien des numériques, aller vers read.csv, modalities (les facteurs ne seront pas donnés comme facteur et devront être transformés en facteurs)
+
+ccnum = estblishes the iso number of the country ccty = country t =\> no data can be deleted loa level of analysis
+
+## Dataset GMPI
+
+The GMPI is the global multidimensional poverty index. This index is aiming at evaluating poverty around the world. This dataset contains the data for the Multidimensional Poverty Index (MPI) and the incidence of multidimensional poverty disaggregated by age, ethnicity, and place of residence and subnational region.
+
+The dataset contains 118 889 observations.
+
+The dataset contains 2 indicators : MPI : Proportion of the population that is multidimensionally poor adjusted by the intensity of the deprivations. Incidence of multidimensional poverty : The proportion of the population with a deprivation score of at least 33 percent. Numerator: The population in the survey year with a Multidimensional Poverty Index score of at least 33 percent. Denominator: The projected number of multidimensionally poor people in 2019.
+
+The MPI, according to the methodology note is measured by different subgroups : 1° age groups 2° geographic areas 3° subnational regions 4° sex of the household head
+
+The MPI measures multidimensional poverty across three main dimensions : Health (through nutrition and child mortality), Education (years of schooling and school attendance) and living standards (access to sanitation, drinking water, electricity, housing material...)
+
+All of these dimensions are equally weighted and are used to calculate the MPI. Its calculation is based on classifying a person on whether she is deprived or not for each of the ten indicators. Then is created a threshold, a person is considered as multidimensionallu poor if the deprivation score is superior to 33%.
+
+To have a better understanding of poverty, the index is disaggregated in different subgroups such as age, areas, subnational regions and bhousehold head sex. This indicator has the support of many international organizations and experts especially from the UNPD, and all the data comes from the Demographic and Health Surveys and Multiple Indicator Cluster surveys.
+
+The MPI disaggregated by age, place of residence and subnational region is published by the OPHI (Oxford Poverty and Human development initiative) while MPI disaggregated by ethnicity is published each year in a report from the UNPD. This index is mainly used by the UNPD and Oxford Poverty Human Development initiative, it measures poverty not only by income but also by health, education and living standards. It is used to evaluate the effects of public policy.
+
+The dataset GMPI was updated in June 2024 and it covers 89 countries.
+
+Sources : https://www.who.int/data/sets/health-inequality-monitor-dataset#mpi To download the data click on : "data and metadata".
 
 # Autre
 
@@ -177,3 +207,7 @@ For all these variables we decided to keep - the estimate coefficient giving an 
 ### Dataset New firms
 
 In this dataset we keep everything but we will mainly look at the new registered company. https://www.worldbank.org/en/programs/entrepreneurship/methodology#:\~:text=New%20business%20density%20rate%3A%20The,%2D64)%20per%20calendar%20year.
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
