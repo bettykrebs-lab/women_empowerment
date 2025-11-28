@@ -33,18 +33,6 @@ Empowerment <- vroom("women_inequalities.csv")
 WBL <- vroom("WB_WBL.csv")
 ```
 
-## Dataset GMPI
-
-The GMPI is the global multidimensional poverty index. This index is aiming at evaluating poverty around the world. This dataset contains the data for the Multidimensional Poverty Index (MPI) and the incidence of multidimensional poverty disaggregated by age, ethnicity, and place of residence and subnational region.
-
-The dataset contains 118 889 observations.
-
-The MPI disaggregated by age, place of residence and subnational region is published by the OPHI (Oxford Poverty and Human development initiative) while MPI disaggregated by ethnicity is published each year in a report from the UNPD.
-
-The dataset GMPI was updated in June 2024 and it covers 89 countries.
-
-Sources : https://www.who.int/data/sets/health-inequality-monitor-dataset#mpi To download the data click on : "data and metadata".
-
 # Other - new idea
 
 title: "Project DM" author: "Marilys Guiban" format: html editor: markdown: wrap: 72 ---
