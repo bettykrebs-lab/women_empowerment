@@ -1,0 +1,225 @@
+---
+title: "marilys_gfinal"
+author: "Marilys Guiban"
+format: html
+---
+---
+title: "Marilys's part"
+author: "Marilys Guiban"
+format: html
+---
+
+##Initialisation
+
+```{r}
+library(here)
+library(ggplot2)
+library(dplyr)
+library(vroom)
+library(tidyr)
+install.packages("openxlsx")
+library(openxlsx)
+```
+
+```{r}
+GMPI <- vroom(here("gmpi.csv"))
+```
+
+```{r}
+Empowerment <- vroom("women_inequalities.csv")
+```
+
+```{r}
+WBL <- vroom("WB_WBL.csv")
+```
+
+## Dataset GMPI
+
+The GMPI is the global multidimensional poverty index. This index is aiming at evaluating poverty around the world. This dataset contains the data for the Multidimensional Poverty Index (MPI) and the incidence of multidimensional poverty disaggregated by age, ethnicity, and place of residence and subnational region.
+
+The dataset contains 118 889 observations.
+
+The MPI disaggregated by age, place of residence and subnational region is published by the OPHI (Oxford Poverty and Human development initiative) while MPI disaggregated by ethnicity is published each year in a report from the UNPD.
+
+The dataset GMPI was updated in June 2024 and it covers 89 countries.
+
+Sources : https://www.who.int/data/sets/health-inequality-monitor-dataset#mpi To download the data click on : "data and metadata".
+
+# Other - new idea
+
+title: "Project DM" author: "Marilys Guiban" format: html editor: markdown: wrap: 72 ---
+
+```{r}
+library(here)
+library(vroom)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(knitr)
+
+install.packages("openxlsx")
+library(openxlsx)
+
+GMPI <- vroom(here("GMPI.csv"))
+Womensempowerment <- read.xlsx("data.xlsx")
+ 
+```
+
+```{r}
+# --- Create a table with column names and types ---
+columns_summary <- tibble(
+  Column_Name = names(GMPI),
+  Column_Type = sapply(GMPI, class)  # numeric, character, logical, etc.
+)
+
+# --- Add dataset-level info as separate "rows" if desired ---
+dataset_info <- tibble(
+  Column_Name = c("Number of Rows", "Number of Columns"),
+  Column_Type = c(nrow(GMPI), ncol(GMPI))  # use numeric here
+)
+
+# Optional: convert all values to character for a single table
+dataset_info <- dataset_info %>% mutate(Column_Type = as.character(Column_Type))
+columns_summary <- columns_summary %>% mutate(Column_Type = as.character(Column_Type))
+
+# Combine into one table
+full_summary <- bind_rows(dataset_info, columns_summary)
+
+# --- Display nicely with knitr::kable ---
+gt::gt(full_summary, caption = "Summary of GMPI Dataset: Dataset Info and Column Details")
+
+```
+
+```{r}
+GMPI %>%
+  distinct(subg) %>%
+  arrange(subg)  # optional: sort them
+```
+
+dplyr, ggplot, tydr (especially joining the data), adding github, difficulties in the file format (semi column rather than comas), meticulous when the data is uploaded) before loading see that numerical values,
+
+There will be no explanation on how to merge 2 files, decimal mark of the file, vérifier que les données sont bien des numériques, aller vers read.csv, modalities (les facteurs ne seront pas donnés comme facteur et devront être transformés en facteurs)
+
+ccnum = estblishes the iso number of the country ccty = country t =\> no data can be deleted loa level of analysis
+
+## Dataset GMPI
+
+The GMPI is the global multidimensional poverty index. This index is aiming at evaluating poverty around the world. This dataset contains the data for the Multidimensional Poverty Index (MPI) and the incidence of multidimensional poverty disaggregated by age, ethnicity, and place of residence and subnational region.
+
+The dataset contains 118 889 observations.
+
+The dataset contains 2 indicators : MPI : Proportion of the population that is multidimensionally poor adjusted by the intensity of the deprivations. Incidence of multidimensional poverty : The proportion of the population with a deprivation score of at least 33 percent. Numerator: The population in the survey year with a Multidimensional Poverty Index score of at least 33 percent. Denominator: The projected number of multidimensionally poor people in 2019.
+
+The MPI, according to the methodology note is measured by different subgroups : 1° age groups 2° geographic areas 3° subnational regions 4° sex of the household head
+
+The MPI measures multidimensional poverty across three main dimensions : Health (through nutrition and child mortality), Education (years of schooling and school attendance) and living standards (access to sanitation, drinking water, electricity, housing material...)
+
+All of these dimensions are equally weighted and are used to calculate the MPI. Its calculation is based on classifying a person on whether she is deprived or not for each of the ten indicators. Then is created a threshold, a person is considered as multidimensionallu poor if the deprivation score is superior to 33%.
+
+To have a better understanding of poverty, the index is disaggregated in different subgroups such as age, areas, subnational regions and bhousehold head sex. This indicator has the support of many international organizations and experts especially from the UNPD, and all the data comes from the Demographic and Health Surveys and Multiple Indicator Cluster surveys.
+
+The MPI disaggregated by age, place of residence and subnational region is published by the OPHI (Oxford Poverty and Human development initiative) while MPI disaggregated by ethnicity is published each year in a report from the UNPD. This index is mainly used by the UNPD and Oxford Poverty Human Development initiative, it measures poverty not only by income but also by health, education and living standards. It is used to evaluate the effects of public policy.
+
+The dataset GMPI was updated in June 2024 and it covers 89 countries.
+
+Sources : https://www.who.int/data/sets/health-inequality-monitor-dataset#mpi To download the data click on : "data and metadata".
+
+# Autre
+
+```{r}
+WGI <- vroom("WGI.csv")
+```
+
+```{r}
+Findex <- vroom("GlobalFindexDatabase2025.csv")
+```
+
+```{r}
+ligne1 <- Findex[1, ]
+colSums(is.na(mon_dataset))
+```
+
+```{r}
+na_count <- colSums(is.na(Findex))
+na_count_sorted <- sort(na_count)
+top15_colonnes <- names(na_count_sorted)[1:20]
+top15_colonnes
+```
+
+```{r}
+ entrepreneurship <- vroom("Total-LLCs.csv")
+```
+
+```{r}
+newfirm <- vroom("newbusiness.csv")
+```
+
+We will look at two datasets : - findex =\> indicator on financial inclusion - newfirm =\> dataset on new businesses between 2006 and 2022 - number of firms =\> same thing - world governance indicator : giving an idea of the confidence in institution We can keep the year 2021 for firms, new firms and findex. Is financial inclusion correlated with less corruption and more political stability ? If applicable does this implies that a country will have more new firms ?
+
+### Dataset Findex
+
+Quelles sont les valeurs les moins manquantes : - fin32.n33 : a reçu un salaire du secteur privé sur un compte bancaire ou un compte d'une institution financière - fin22b : emprunte de l'argent à de la famille ou des amis - g20.any : a fait ou a reçu un paiement en ligne (made or received a digital payment) - fin32 : a reçu un salaire du secteur public dans un compte en banque - fin17a.17a1.d : épargne de l'argent sur un compte en banque physique ou en ligne - fin22e : a emprunté pour commencer à lancer un business - fin2.t.d : a un compte bancaire =\> variables à observer de l'inclusion financière
+
+### Dataset World Government index
+
+```{r}
+na_count <- colSums(is.na())
+na_count_sorted <- sort(na_count)
+top15_colonnes <- names(na_count_sorted)[1:20]
+top15_colonnes
+```
+
+Dans le dataset je regarde de quoi est composée la colonne 3 :
+
+```{r}
+unique(WGI$`Series Name`)
+```
+
+With pivot wider, we are sorting the data so and dividing our column Series Name in different columns for each variable that is studied. The dataset named WGI_wide is the final dataset that we will use for our project.
+
+```{r}
+library(tidyr)
+
+names(WGI) <- make.names(names(WGI), unique = TRUE)
+dput(colnames(WGI))  # voir nouveaux noms
+
+
+cols_annees <- grep("^X[0-9]{4}", colnames(WGI), value = TRUE)
+cols_annees
+library(dplyr)
+library(tidyr)
+
+WGI_long <- WGI %>%
+  pivot_longer(
+    cols = c(all_of(cols_annees), growth.rate),   # années + growth.rate
+    names_to = "Annee",
+    values_to = "Valeur"
+  )
+
+WGI_long <- WGI_long %>%
+  mutate(Annee = gsub("X([0-9]{4}).*", "\\1", Annee))
+
+WGI_wide <- WGI_long %>%
+  pivot_wider(
+    id_cols = c(Country.Name, Country.Code, Annee),
+    names_from = Series.Name,
+    values_from = Valeur
+  )
+
+```
+
+Now let's determine which variable is the more relevant for our analysis For our research question and given the past variables that we have, we are using : - political stability and the absence of terrorisme as an explicative variable of financial inclusion : - government effectiveness : Government Effectiveness captures perceptions of the quality of public services, the quality of the civil service and the degree of its independence from political pressures, the quality of policy formulation and implementation, and the credibility of the government's commitment to such policies. Estimate gives the country's score on the aggregate indicator, in units of a standard normal distribution, i.e. ranging from approximately -2.5 to 2.5.
+
+Why is it relevant ? Because when public services are functioning in a right way they allow the development of banks and financial institutions.
+
+-   Rule of law : Rule of Law captures perceptions of the extent to which agents have confidence in and abide by the rules of society, and in particular the quality of contract enforcement, property rights, the police, and the courts, as well as the likelihood of crime and violence. Estimate gives the country's score on the aggregate indicator, in units of a standard normal distribution, i.e. ranging from approximately -2.5 to 2.5.
+
+For all these variables we decided to keep - the estimate coefficient giving an idea of the importance of the variable - the percentile rank that is letting us know what is the performance of the country
+
+### Dataset New firms
+
+In this dataset we keep everything but we will mainly look at the new registered company. https://www.worldbank.org/en/programs/entrepreneurship/methodology#:\~:text=New%20business%20density%20rate%3A%20The,%2D64)%20per%20calendar%20year.
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
