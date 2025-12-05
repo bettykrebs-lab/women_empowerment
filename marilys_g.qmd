@@ -2,11 +2,9 @@
 title: "marilys_gfinal"
 author: "Marilys Guiban"
 format: html
----
----
-title: "Marilys's part"
-author: "Marilys Guiban"
-format: html
+editor: 
+  markdown: 
+    wrap: sentence
 ---
 
 ##Initialisation
@@ -21,98 +19,9 @@ install.packages("openxlsx")
 library(openxlsx)
 ```
 
-```{r}
-GMPI <- vroom(here("gmpi.csv"))
-```
-
-```{r}
-Empowerment <- vroom("women_inequalities.csv")
-```
-
-```{r}
-WBL <- vroom("WB_WBL.csv")
-```
-
-# Other - new idea
-
-title: "Project DM" author: "Marilys Guiban" format: html editor: markdown: wrap: 72 ---
-
-```{r}
-library(here)
-library(vroom)
-library(ggplot2)
-library(dplyr)
-library(tidyr)
-library(knitr)
-
-install.packages("openxlsx")
-library(openxlsx)
-
-GMPI <- vroom(here("GMPI.csv"))
-Womensempowerment <- read.xlsx("data.xlsx")
- 
-```
-
-```{r}
-# --- Create a table with column names and types ---
-columns_summary <- tibble(
-  Column_Name = names(GMPI),
-  Column_Type = sapply(GMPI, class)  # numeric, character, logical, etc.
-)
-
-# --- Add dataset-level info as separate "rows" if desired ---
-dataset_info <- tibble(
-  Column_Name = c("Number of Rows", "Number of Columns"),
-  Column_Type = c(nrow(GMPI), ncol(GMPI))  # use numeric here
-)
-
-# Optional: convert all values to character for a single table
-dataset_info <- dataset_info %>% mutate(Column_Type = as.character(Column_Type))
-columns_summary <- columns_summary %>% mutate(Column_Type = as.character(Column_Type))
-
-# Combine into one table
-full_summary <- bind_rows(dataset_info, columns_summary)
-
-# --- Display nicely with knitr::kable ---
-gt::gt(full_summary, caption = "Summary of GMPI Dataset: Dataset Info and Column Details")
-
-```
-
-```{r}
-GMPI %>%
-  distinct(subg) %>%
-  arrange(subg)  # optional: sort them
-```
-
-dplyr, ggplot, tydr (especially joining the data), adding github, difficulties in the file format (semi column rather than comas), meticulous when the data is uploaded) before loading see that numerical values,
-
-There will be no explanation on how to merge 2 files, decimal mark of the file, vérifier que les données sont bien des numériques, aller vers read.csv, modalities (les facteurs ne seront pas donnés comme facteur et devront être transformés en facteurs)
-
-ccnum = estblishes the iso number of the country ccty = country t =\> no data can be deleted loa level of analysis
-
-## Dataset GMPI
-
-The GMPI is the global multidimensional poverty index. This index is aiming at evaluating poverty around the world. This dataset contains the data for the Multidimensional Poverty Index (MPI) and the incidence of multidimensional poverty disaggregated by age, ethnicity, and place of residence and subnational region.
-
-The dataset contains 118 889 observations.
-
-The dataset contains 2 indicators : MPI : Proportion of the population that is multidimensionally poor adjusted by the intensity of the deprivations. Incidence of multidimensional poverty : The proportion of the population with a deprivation score of at least 33 percent. Numerator: The population in the survey year with a Multidimensional Poverty Index score of at least 33 percent. Denominator: The projected number of multidimensionally poor people in 2019.
-
-The MPI, according to the methodology note is measured by different subgroups : 1° age groups 2° geographic areas 3° subnational regions 4° sex of the household head
-
-The MPI measures multidimensional poverty across three main dimensions : Health (through nutrition and child mortality), Education (years of schooling and school attendance) and living standards (access to sanitation, drinking water, electricity, housing material...)
-
-All of these dimensions are equally weighted and are used to calculate the MPI. Its calculation is based on classifying a person on whether she is deprived or not for each of the ten indicators. Then is created a threshold, a person is considered as multidimensionallu poor if the deprivation score is superior to 33%.
-
-To have a better understanding of poverty, the index is disaggregated in different subgroups such as age, areas, subnational regions and bhousehold head sex. This indicator has the support of many international organizations and experts especially from the UNPD, and all the data comes from the Demographic and Health Surveys and Multiple Indicator Cluster surveys.
-
-The MPI disaggregated by age, place of residence and subnational region is published by the OPHI (Oxford Poverty and Human development initiative) while MPI disaggregated by ethnicity is published each year in a report from the UNPD. This index is mainly used by the UNPD and Oxford Poverty Human Development initiative, it measures poverty not only by income but also by health, education and living standards. It is used to evaluate the effects of public policy.
-
-The dataset GMPI was updated in June 2024 and it covers 89 countries.
-
 Sources : https://www.who.int/data/sets/health-inequality-monitor-dataset#mpi To download the data click on : "data and metadata".
 
-# Autre
+### Loading the different files 
 
 ```{r}
 WGI <- vroom("WGI.csv")
@@ -123,9 +32,33 @@ Findex <- vroom("GlobalFindexDatabase2025.csv")
 ```
 
 ```{r}
-ligne1 <- Findex[1, ]
-colSums(is.na(mon_dataset))
+empowerment <- vroom(here("women_inequalities.csv"))
 ```
+
+With this code we
+
+We will look at two datasets : - findex =\> indicator on financial inclusion - newfirm =\> dataset on new businesses between 2006 and 2022 - number of firms =\> same thing - world governance indicator : giving an idea of the confidence in institution We can keep the year 2021 for firms, new firms and findex.
+Is financial inclusion correlated with less corruption and more political stability ?
+If applicable does this implies that a country will have more new firms ?
+
+## Dataset Findex
+
+### Description of the dataset
+
+### Tables describing the dataset
+
+### Description of the sources
+
+### Description of the variables
+
+### Data cleaning
+
+First we suppress the first line of our dataset since it is giving confusing informations. In order to do this we compute this code : 
+```{r}
+Findex <- Findex[-1, ]
+```
+
+Since there are a lot of different values, we are first calculating which are the 20 columns with the lowest number of missing values.
 
 ```{r}
 na_count <- colSums(is.na(Findex))
@@ -134,24 +67,51 @@ top15_colonnes <- names(na_count_sorted)[1:20]
 top15_colonnes
 ```
 
+The variables with the fewest missing values are those related to financial inclusion, such as receiving private-sector wages into a bank account (fin32.n33), borrowing money from family or friends (fin22b), making or receiving digital payments (g20.any), receiving public-sector wages into a bank account (fin32), saving money in a physical or online bank account (fin17a.17a1.d), borrowing to start a business (fin22e), and owning a bank account (fin2.t.d).
+These variables represent key indicators of financial inclusion that we will observe closely.
+
+For our project we are keeping the variables : 
+- "has_bank_account" : The percentage of respondents who report being employed in the private sector and receiving any money from their employer in the past year in the form of a salary or wages for doing work, and who received that money directly into a bank or similar financial institution account 
+
+- "borrow_start_business" : The percentage of respondents who report borrowing any money to start or operate a business in the past year.
+
+- "save_bank_account" : The percentage of respondents who report saving or setting aside any money at a bank or similar financial institution or using a mobile money account to save in the past year.
+
+- "digital payment" : The percentage of respondents who report using mobile money, a debit or credit card, or a mobile phone to make a payment from an account--or report using the internet to pay bills or to buy something online or in a store--in the past year. 
+This includes respondents who report paying bills, sending or receiving remittances, receiving payments for agricultural products, receiving government transfers, receiving wages, or receiving a public sector pension directly from or into a bank or similar financial institution account or through a mobile money account in the past year.
+
+- "borrow family_friends" : The percentage of respondents who report borrowing any money from family, relatives, or friends in the past year
+
+With this code we are renaming and keeping only the values we are going to study in our project :
+
 ```{r}
- entrepreneurship <- vroom("Total-LLCs.csv")
+Findex <- Findex %>%
+  rename(
+    borrow_family_friends     = fin22b,
+    digital_payment           = g20.any,
+    save_bank_account         = fin17a.17a1.d,
+    borrow_start_business     = fin22e,
+    has_bank_account          = fin2.t.d
+  )
 ```
 
+## Dataset World Government index
+
+### Description of the dataset
+
+### Tables describing the dataset
+
+### Description of the sources
+
+### Description of the variables
+
+### Data cleaning
+
+Again to identify what will be interesting to look at, we verify which variables have the lowest number of missing variables.
+We will now keep the values for the years :
+
 ```{r}
-newfirm <- vroom("newbusiness.csv")
-```
-
-We will look at two datasets : - findex =\> indicator on financial inclusion - newfirm =\> dataset on new businesses between 2006 and 2022 - number of firms =\> same thing - world governance indicator : giving an idea of the confidence in institution We can keep the year 2021 for firms, new firms and findex. Is financial inclusion correlated with less corruption and more political stability ? If applicable does this implies that a country will have more new firms ?
-
-### Dataset Findex
-
-Quelles sont les valeurs les moins manquantes : - fin32.n33 : a reçu un salaire du secteur privé sur un compte bancaire ou un compte d'une institution financière - fin22b : emprunte de l'argent à de la famille ou des amis - g20.any : a fait ou a reçu un paiement en ligne (made or received a digital payment) - fin32 : a reçu un salaire du secteur public dans un compte en banque - fin17a.17a1.d : épargne de l'argent sur un compte en banque physique ou en ligne - fin22e : a emprunté pour commencer à lancer un business - fin2.t.d : a un compte bancaire =\> variables à observer de l'inclusion financière
-
-### Dataset World Government index
-
-```{r}
-na_count <- colSums(is.na())
+na_count <- colSums(is.na(WGI))
 na_count_sorted <- sort(na_count)
 top15_colonnes <- names(na_count_sorted)[1:20]
 top15_colonnes
@@ -163,7 +123,8 @@ Dans le dataset je regarde de quoi est composée la colonne 3 :
 unique(WGI$`Series Name`)
 ```
 
-With pivot wider, we are sorting the data so and dividing our column Series Name in different columns for each variable that is studied. The dataset named WGI_wide is the final dataset that we will use for our project.
+With pivot wider, we are sorting the data so and dividing our column Series Name in different columns for each variable that is studied.
+The dataset named WGI_wide is the final dataset that we will use for our project.
 
 ```{r}
 library(tidyr)
@@ -193,21 +154,52 @@ WGI_wide <- WGI_long %>%
     names_from = Series.Name,
     values_from = Valeur
   )
-
 ```
 
-Now let's determine which variable is the more relevant for our analysis For our research question and given the past variables that we have, we are using : - political stability and the absence of terrorisme as an explicative variable of financial inclusion : - government effectiveness : Government Effectiveness captures perceptions of the quality of public services, the quality of the civil service and the degree of its independence from political pressures, the quality of policy formulation and implementation, and the credibility of the government's commitment to such policies. Estimate gives the country's score on the aggregate indicator, in units of a standard normal distribution, i.e. ranging from approximately -2.5 to 2.5.
+Now let's determine which variable is the more relevant for our analysis For our research question and given the past variables that we have, we are using : - political stability and the absence of terrorism as an explicative variable of financial inclusion : - government effectiveness : Government Effectiveness captures perceptions of the quality of public services, the quality of the civil service and the degree of its independence from political pressures, the quality of policy formulation and implementation, and the credibility of the government's commitment to such policies.
+Estimate gives the country's score on the aggregate indicator, in units of a standard normal distribution, i.e. ranging from approximately -2.5 to 2.5.
 
-Why is it relevant ? Because when public services are functioning in a right way they allow the development of banks and financial institutions.
+For the relevant years that we will certainly keep will be : 1999, 2009 (to see the effect of the Subprime crisis) and 2023 for the most recent data on world governmeent indexes.
+
+Why is it relevant ?
+Because when public services are functioning in a right way they allow the development of banks and financial institutions.
 
 -   Rule of law : Rule of Law captures perceptions of the extent to which agents have confidence in and abide by the rules of society, and in particular the quality of contract enforcement, property rights, the police, and the courts, as well as the likelihood of crime and violence. Estimate gives the country's score on the aggregate indicator, in units of a standard normal distribution, i.e. ranging from approximately -2.5 to 2.5.
 
 For all these variables we decided to keep - the estimate coefficient giving an idea of the importance of the variable - the percentile rank that is letting us know what is the performance of the country
 
-### Dataset New firms
+Question : Can we observe a correlation between the quality of institutions, financial inclusion, and women’s ability to be independent in social and financial spheres?
+Variables à expliquer : Women with high empowerment in the decision-making process and Women with high empowerment in the social domain.
+(Data from the Women Empowerment dataset)
 
-In this dataset we keep everything but we will mainly look at the new registered company. https://www.worldbank.org/en/programs/entrepreneurship/methodology#:\~:text=New%20business%20density%20rate%3A%20The,%2D64)%20per%20calendar%20year.
-## Quarto
+Main target variables : women with high empowerment in the decision making process, women with high empowerment in the social domain
 
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+Variables explicatives : - quality of institutions : we use political stability, absence of terrorism, and government effectiveness from the World Governance Indicators (WGI) to measure individuals’ confidence in their institutions.
+- financial inclusion : whether the individual has a bank account, amount of savings per individual, borrowing (or not) from family, and receiving salary in a bank account.
+Research question : Do the quality of institutions and the development of institutional financing systems enable women to empower themselves in the social and decision-making domains ?
+- women's inclusion in the political sphere =\> through the
+
+## Dataset V-Democracy :
+
+In this dataset we will keep the women's political participation index through estimations for the years : 1999, 2009 and 2023. 
+```{r}
+womenpolitics <- read.csv(here("data", "womeninpolitics.csv"))
+```
+
+No cleaning was necessary for this dataset since we kept everything. 
+
+How to download : click on this link https://www.v-dem.net/data/the-v-dem-dataset/country-year-v-dem-fullothers-v15/ Then download the dataset called "Country-Year: V-Dem Full+Others" On this dataset we did no specific clearing nor joining since it was complete and appeared well.
+
+## Data joining 
+We will now join our three datasets : 
+ 
+ 
+## Description of our research question 
+
+## Graphical representation of our two graphical representations 
+
+
+
+
+
 
