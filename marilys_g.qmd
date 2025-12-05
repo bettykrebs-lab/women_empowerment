@@ -179,6 +179,10 @@ Variables explicatives : - quality of institutions : we use political stability,
 Research question : Do the quality of institutions and the development of institutional financing systems enable women to empower themselves in the social and decision-making domains ?
 - women's inclusion in the political sphere =\> through the
 
+
+
+
+
 ## Dataset V-Democracy :
 
 In this dataset we will keep the women's political participation index through estimations for the years : 1999, 2009 and 2023. 
