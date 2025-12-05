@@ -21,7 +21,7 @@ library(openxlsx)
 
 Sources : https://www.who.int/data/sets/health-inequality-monitor-dataset#mpi To download the data click on : "data and metadata".
 
-### Loading the different files 
+### Loading the different files
 
 ```{r}
 WGI <- vroom("WGI.csv")
@@ -43,17 +43,34 @@ If applicable does this implies that a country will have more new firms ?
 
 ## Dataset Findex
 
-### Description of the dataset
+### Description of the dataset and the sources 
+
+The Global Findex Database is the world's only demand-side survey on financial inclusion and a leading source of data on how adults around the world access and use financial services.
+
+Since its launch in 2011, the Global Findex has provided critical insights into financial inclusion, digital payments, savings, and borrowing behaviors across various economies.
+The database highlights key trends such as the rise of digital financial services and the gender gap in account ownership.
+
+The Global Findex 2025 introduces the Digital Connectivity Tracker, a new component that measures access to and use of mobile technology.
+Combined with financial inclusion data, it offers a holistic view of how mobile infrastructure is expanding access to financial services and improving economic resilience.
+
+*Methodology* : This dataset is produced by the world bank every four years. The 2025 version, based on nationally representative surveys of about 145,000 adults in 141 economies and conducted over the calendar year 2024, includes updated indicators on access to and use of formal and informal financial services to save, borrow, make payments, and manage financial risk, as well as globally comparable data on ownership of mobile phones, internet use, and digital safety. The data also identify gaps in access to and use of digital and financial services by
+women and poor adults.
+
+The survey results reflect a snapshot in time based on questions that respondents
+answered about their habits and experiences during the 12 months preceding the
+survey. Comparing results from the current survey with those from the 2011, 2014,
+2017, and 2021 surveys reveals which trends endure, expand, and grow over time.
+
+*How to download this dataset ?* : https://databank.worldbank.org/source/global-findex-database#
+To download the dataset, we initially selected all the variables on the website of the World bank for the country and series category. We selected the year 2024 for the dataset in order to provide the most recent data. 
 
 ### Tables describing the dataset
 
-### Description of the sources
-
-### Description of the variables
-
 ### Data cleaning
 
-First we suppress the first line of our dataset since it is giving confusing informations. In order to do this we compute this code : 
+First we suppress the first line of our dataset since it is giving confusing informations.
+In order to do this we compute this code :
+
 ```{r}
 Findex <- Findex[-1, ]
 ```
@@ -70,17 +87,18 @@ top15_colonnes
 The variables with the fewest missing values are those related to financial inclusion, such as receiving private-sector wages into a bank account (fin32.n33), borrowing money from family or friends (fin22b), making or receiving digital payments (g20.any), receiving public-sector wages into a bank account (fin32), saving money in a physical or online bank account (fin17a.17a1.d), borrowing to start a business (fin22e), and owning a bank account (fin2.t.d).
 These variables represent key indicators of financial inclusion that we will observe closely.
 
+### Description of the variables
 For our project we are keeping the variables : 
-- "has_bank_account" : The percentage of respondents who report being employed in the private sector and receiving any money from their employer in the past year in the form of a salary or wages for doing work, and who received that money directly into a bank or similar financial institution account 
+- "has_bank_account" : The percentage of respondents who report being employed in the private sector and receiving any money from their employer in the past year in the form of a salary or wages for doing work, and who received that money directly into a bank or similar financial institution account
 
-- "borrow_start_business" : The percentage of respondents who report borrowing any money to start or operate a business in the past year.
+-   "borrow_start_business" : The percentage of respondents who report borrowing any money to start or operate a business in the past year.
 
-- "save_bank_account" : The percentage of respondents who report saving or setting aside any money at a bank or similar financial institution or using a mobile money account to save in the past year.
+-   "save_bank_account" : The percentage of respondents who report saving or setting aside any money at a bank or similar financial institution or using a mobile money account to save in the past year.
 
-- "digital payment" : The percentage of respondents who report using mobile money, a debit or credit card, or a mobile phone to make a payment from an account--or report using the internet to pay bills or to buy something online or in a store--in the past year. 
-This includes respondents who report paying bills, sending or receiving remittances, receiving payments for agricultural products, receiving government transfers, receiving wages, or receiving a public sector pension directly from or into a bank or similar financial institution account or through a mobile money account in the past year.
+-   "digital payment" : The percentage of respondents who report using mobile money, a debit or credit card, or a mobile phone to make a payment from an account--or report using the internet to pay bills or to buy something online or in a store--in the past year.
+    This includes respondents who report paying bills, sending or receiving remittances, receiving payments for agricultural products, receiving government transfers, receiving wages, or receiving a public sector pension directly from or into a bank or similar financial institution account or through a mobile money account in the past year.
 
-- "borrow family_friends" : The percentage of respondents who report borrowing any money from family, relatives, or friends in the past year
+-   "borrow family_friends" : The percentage of respondents who report borrowing any money from family, relatives, or friends in the past year
 
 With this code we are renaming and keeping only the values we are going to study in our project :
 
@@ -103,7 +121,6 @@ Findex <- Findex %>%
 
 ### Description of the sources
 
-### Description of the variables
 
 ### Data cleaning
 
@@ -168,39 +185,41 @@ Because when public services are functioning in a right way they allow the devel
 
 For all these variables we decided to keep - the estimate coefficient giving an idea of the importance of the variable - the percentile rank that is letting us know what is the performance of the country
 
-Question : Can we observe a correlation between the quality of institutions, financial inclusion, and women’s ability to be independent in social and financial spheres?
-Variables à expliquer : Women with high empowerment in the decision-making process and Women with high empowerment in the social domain.
 (Data from the Women Empowerment dataset)
 
+### Description of the variables
 Main target variables : women with high empowerment in the decision making process, women with high empowerment in the social domain
-
-Variables explicatives : - quality of institutions : we use political stability, absence of terrorism, and government effectiveness from the World Governance Indicators (WGI) to measure individuals’ confidence in their institutions.
-- financial inclusion : whether the individual has a bank account, amount of savings per individual, borrowing (or not) from family, and receiving salary in a bank account.
-Research question : Do the quality of institutions and the development of institutional financing systems enable women to empower themselves in the social and decision-making domains ?
-- women's inclusion in the political sphere =\> through the
-
-
-
 
 
 ## Dataset V-Democracy :
 
-In this dataset we will keep the women's political participation index through estimations for the years : 1999, 2009 and 2023. 
+In this dataset we will keep the women's political participation index through estimations for the years : 1999, 2009 and 2023.
+
 ```{r}
 womenpolitics <- read.csv(here("data", "womeninpolitics.csv"))
 ```
 
-No cleaning was necessary for this dataset since we kept everything. 
+No cleaning was necessary for this dataset since we kept everything.
 
 How to download : click on this link https://www.v-dem.net/data/the-v-dem-dataset/country-year-v-dem-fullothers-v15/ Then download the dataset called "Country-Year: V-Dem Full+Others" On this dataset we did no specific clearing nor joining since it was complete and appeared well.
 
-## Data joining 
-We will now join our three datasets : 
- 
- 
-## Description of our research question 
+## Data joining
 
-## Graphical representation of our two graphical representations 
+We will now join our three datasets :
+
+## Description of our research question
+
+Question : Can we observe a correlation between the quality of institutions, financial inclusion, and women’s ability to be independent in social and financial spheres?
+
+Variables à expliquer : Women with high empowerment in the decision-making process and Women with high empowerment in the social domain.
+
+Variables selected : 
+- quality of institutions : we use political stability, absence of terrorism, and government effectiveness from the World Governance Indicators (WGI) to measure individuals’ confidence in their institutions.
+- financial inclusion : "has_bank_account", "borrow_start_business", "save_bank_account", "digital payment", "borrow family_friends"
+Research question : Do the quality of institutions and the development of institutional financing systems enable women to empower themselves in the social and decision-making domains ?
+- women's inclusion in the political sphere => through the
+
+## Graphical representation of our two graphical representations
 
 
 
