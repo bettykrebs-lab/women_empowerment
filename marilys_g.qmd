@@ -47,7 +47,7 @@ The Global Findex 2025 introduces the Digital Connectivity Tracker, a new compon
 Combined with financial inclusion data, it offers a holistic view of how mobile infrastructure is expanding access to financial services and improving economic resilience.
 
 *Methodology* : This dataset is produced by the world bank every four years.
-The 2025 version, based on nationally representative surveys of about 145,000 adults in 141 economies and conducted over the calendar year 2024, includes updated indicators on access to and use of formal and informal financial services to save, borrow, make payments, and manage financial risk, as well as globally comparable data on ownership of mobile phones, internet use, and digital safety.
+The 2025 version, based on nationally representative surveys of about 145,000 adults in 141 economies and conducted over the calendar year 2024, includes updated indicators on access toand use of formal and informal financial services to save, borrow, make payments, and manage financial risk, as well as globally comparable data on ownership of mobile phones, internet use, and digital safety.
 The data also identify gaps in access to and use of digital and financial services by women and poor adults.
 
 The survey results reflect a snapshot in time based on questions that respondents answered about their habits and experiences during the 12 months preceding the survey.
