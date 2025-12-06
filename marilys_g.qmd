@@ -1,0 +1,332 @@
+---
+title: "marilys_gfinal"
+author: "Marilys Guiban"
+format: html
+editor: 
+  markdown: 
+    wrap: sentence
+---
+
+## Initialisation
+
+```{r}
+library(here)
+library(ggplot2)
+library(dplyr)
+library(vroom)
+library(tidyr)
+library(openxlsx)
+library(tibble)
+library(knitr)
+```
+
+### Loading the different files
+
+```{r}
+WGI <- vroom("WGI.csv")
+```
+
+```{r}
+Findex <- vroom("GlobalFindexDatabase2025.csv")
+```
+
+```{r}
+empowerment <- vroom(here("women_inequalities.csv"))
+```
+
+## Dataset Findex
+
+### Description of the dataset and the sources
+
+The Global Findex Database is the world's only demand-side survey on financial inclusion and a leading source of data on how adults around the world access and use financial services.
+
+Since its launch in 2011, the Global Findex has provided critical insights into financial inclusion, digital payments, savings, and borrowing behaviors across various economies.
+The database highlights key trends such as the rise of digital financial services and the gender gap in account ownership.
+
+The Global Findex 2025 introduces the Digital Connectivity Tracker, a new component that measures access to and use of mobile technology.
+Combined with financial inclusion data, it offers a holistic view of how mobile infrastructure is expanding access to financial services and improving economic resilience.
+
+*Methodology* : This dataset is produced by the world bank every four years.
+The 2025 version, based on nationally representative surveys of about 145,000 adults in 141 economies and conducted over the calendar year 2024, includes updated indicators on access toand use of formal and informal financial services to save, borrow, make payments, and manage financial risk, as well as globally comparable data on ownership of mobile phones, internet use, and digital safety.
+The data also identify gaps in access to and use of digital and financial services by women and poor adults.
+
+The survey results reflect a snapshot in time based on questions that respondents answered about their habits and experiences during the 12 months preceding the survey.
+Comparing results from the current survey with those from the 2011, 2014, 2017, and 2021 surveys reveals which trends endure, expand, and grow over time.
+
+*How to download this dataset ?* : https://databank.worldbank.org/source/global-findex-database# To download the dataset, we initially selected all the variables on the website of the World bank for the country and series category.
+We selected the year 2024 for the dataset in order to provide the most recent data.
+
+### Data cleaning
+
+First we suppress the first line of our dataset since it is giving confusing informations.
+In order to do this we compute this code :
+
+```{r}
+Findex <- Findex[-1, ]
+```
+
+Since there are a lot of different values, we are first calculating which are the 20 columns with the lowest number of missing values.
+
+```{r}
+na_count <- colSums(is.na(Findex))
+na_count_sorted <- sort(na_count)
+top15_colonnes <- names(na_count_sorted)[1:20]
+top15_colonnes
+```
+
+The variables with the fewest missing values are those related to financial inclusion, such as receiving private-sector wages into a bank account (fin32.n33), borrowing money from family or friends (fin22b), making or receiving digital payments (g20.any), receiving public-sector wages into a bank account (fin32), saving money in a physical or online bank account (fin17a.17a1.d), borrowing to start a business (fin22e), and owning a bank account (fin2.t.d).
+These variables represent key indicators of financial inclusion that we will observe closely.
+
+### Description of the variables
+
+For our project we are keeping the variables : - "has_bank_account" : The percentage of respondents who report being employed in the private sector and receiving any money from their employer in the past year in the form of a salary or wages for doing work, and who received that money directly into a bank or similar financial institution account
+
+-   "borrow_start_business" : The percentage of respondents who report borrowing any money to start or operate a business in the past year.
+
+-   "save_bank_account" : The percentage of respondents who report saving or setting aside any money at a bank or similar financial institution or using a mobile money account to save in the past year.
+
+-   "digital payment" : The percentage of respondents who report using mobile money, a debit or credit card, or a mobile phone to make a payment from an account--or report using the internet to pay bills or to buy something online or in a store--in the past year.
+    This includes respondents who report paying bills, sending or receiving remittances, receiving payments for agricultural products, receiving government transfers, receiving wages, or receiving a public sector pension directly from or into a bank or similar financial institution account or through a mobile money account in the past year.
+
+-   "borrow family_friends" : The percentage of respondents who report borrowing any money from family, relatives, or friends in the past year
+
+With this code we are renaming and keeping only the values we are going to study in our project :
+
+```{r}
+Findexclean <- Findex %>%
+  rename(
+    borrow_family_friends     = fin22b,
+    digital_payment           = g20.any,
+    save_bank_account         = fin17a.17a1.d,
+    borrow_start_business     = fin22e,
+    has_bank_account          = fin2.t.d,
+    country = countrynewwb, 
+    codecountry = codewb
+  ) |> 
+  select(
+    country,
+    codecountry,
+    year,
+    borrow_family_friends,
+    digital_payment,
+    save_bank_account,
+    borrow_start_business,
+    has_bank_account
+  )
+
+```
+
+### Tables describing the dataset
+
+Here is a table giving the basic informations about our first dataset :
+
+```{r}
+# Tableau 1 : résumé très concis
+summary_info <- tibble(
+  Dataset = "Findex",
+  Rows = nrow(Findex),
+  Columns = ncol(Findex),
+  Variables = ncol(Findex)
+)
+
+kable(summary_info, caption = "Résumé du dataset Findex")
+
+
+# Tableau 2 : liste compacte des variables (1 ligne seulement)
+variable_table <- tibble(
+  Index = seq_along(names(Findex)),
+  Variable = names(Findex)  # colonne vide pour pouvoir compléter proprement
+)
+
+kable(variable_table, caption = "Liste des variables du dataset Findex")
+```
+
+Now let's do the same with our cleaned dataset Findexclean :
+
+```{r}
+# Tableau 1 : résumé très concis
+summary_info <- tibble(
+  Dataset = "Findexclean",
+  Rows = nrow(Findexclean),
+  Columns = ncol(Findexclean),
+  Variables = ncol(Findexclean)
+)
+
+kable(summary_info, caption = "Résumé du dataset Findex")
+
+
+# Tableau 2 : liste compacte des variables (1 ligne seulement)
+variable_table <- tibble(
+  Index = seq_along(names(Findexclean)),
+  Variable = names(Findexclean)  # colonne vide pour pouvoir compléter proprement
+)
+
+kable(variable_table, caption = "Liste des variables du dataset Findex")
+```
+
+## Dataset Worldwide Government index
+
+### Description of the dataset
+
+The worldwide governance indicators (WGI) measure governance in over 200 countries and territories from 1996 to 2023.
+Governance is defined as the traditions and institutions through which authority is exercised, including how governments are selected, monitored and replaced.
+
+The WGI covers six dimensions : 1° voice and accountability 2° political stability and absence of violence or terrorism 3° government effectiveness 4° regulatory quality 5° rule of law 6° control of corruption
+
+*Methodology* : The WGI is built by the World Bank from more than 30 data sources incuding surveys of citizens and firms, NGO reports, commercial business information and assessments from public sector organizations.
+Data are from each source are rescaled to a 0-1 tange and combined using an unobserved components model which adjusts for differences across sources, weights them according to correlation and generates governance estimates with standard errors.
+All the scores are reported in standardized units and percentiles from 0 to 100.
+When the value is higher, it indicates better governance.
+
+The WGI provide a global overview of governance quality helping to identify patterns, strengths and weaknesses.
+It is supporting research in the relationship between governance, economic growth and social development.
+
+*How to download this dataset ?* : https://databank.worldbank.org/source/worldwide-governance-indicators To download the dataset, we initially selected all the variables on the website of the World bank for the country and series category.
+At first we decided to keep the data for all the years, we will now determine which year seems the most relevant for our observations.
+
+### Data cleaning
+
+Again to identify what will be interesting to look at, we verify which variables have the lowest number of missing variables.
+We will now keep the values for the years :
+
+```{r}
+na_count <- colSums(is.na(WGI))
+na_count_sorted <- sort(na_count)
+top15_colonnes <- names(na_count_sorted)[1:20]
+top15_colonnes
+```
+
+Dans le dataset je regarde de quoi est composée la colonne 3 :
+
+```{r}
+unique(WGI$`Series Name`)
+```
+
+With pivot wider, we are sorting the data and dividing our column Series Name in different columns for each variable that is studied.
+The dataset named WGI_wide is the final dataset that we will use for our project.
+
+```{r}
+library(tidyr)
+
+names(WGI) <- make.names(names(WGI), unique = TRUE)
+dput(colnames(WGI))  # voir nouveaux noms
+
+
+cols_annees <- grep("^X[0-9]{4}", colnames(WGI), value = TRUE)
+cols_annees
+library(dplyr)
+library(tidyr)
+
+WGI_long <- WGI %>%
+  pivot_longer(
+    cols = c(all_of(cols_annees), growth.rate),   # années + growth.rate
+    names_to = "Annee",
+    values_to = "Valeur"
+  )
+
+WGI_long <- WGI_long %>%
+  mutate(Annee = gsub("X([0-9]{4}).*", "\\1", Annee))
+
+WGI_wide <- WGI_long %>%
+  pivot_wider(
+    id_cols = c(Country.Name, Country.Code, Annee),
+    names_from = Series.Name,
+    values_from = Valeur
+  )
+```
+
+### Description of the variables
+
+Now let's determine which variables are the most relevant for our analysis.
+For our research question and given the past variables that we have, we are using : - political stability and the absence of terrorism as an explicative variable of women empowerment It measures perceptions of the likelihood of political instability and/or politically-motivated violence, including terrorism.
+Estimate gives the country's score on the aggregate indicator, in units of a standard normal distribution, i.e. ranging from approximately -2.5 to 2.5.
+
+-   Voice and accountability : captures perceptions of the extent to which a country's citizens are able to participate in selecting their government, as well as freedom of expression, freedom of association, and a free media.
+    Estimate gives the country's score on the aggregate indicator, in units of a standard normal distribution, i.e. ranging from approximately -2.5 to 2.5.
+
+-   rule of law : Regulatory Quality captures perceptions of the ability of the government to formulate and implement sound policies and regulations that permit and promote private sector development.
+
+For each indicators we keep the estimate and the percentile value: - Estimate gives the country's score on the aggregate indicator, in units of a standard normal distribution.
+- Percentile rank indicates the country's rank among all countries covered by the aggregate indicator, with 0 corresponding to lowest rank, and 100 to highest rank.
+Percentile ranks have been adjusted to correct for changes over time in the composition of the countries covered by the WGI.
+
+In our project we will certainly focus more on the years : 1998, 2009 (to see the effect of the Subprime crisis) and 2023 for the most recent data on world government indexes.
+
+We will now compute a clean dataset for WGI, keeping only the estimate values and the percentile rank of the country in order to compare them.
+
+```{r}
+# Sélectionner uniquement les colonnes d'intérêt
+WGI_cleaned <- WGI_wide |>
+  select(
+    Country.Name,
+    Country.Code,
+    Annee,
+    `Voice and Accountability: Estimate`,
+    `Voice and Accountability: Percentile Rank`,
+    `Rule of Law: Estimate`,
+    `Rule of Law: Percentile Rank`,
+    `Political Stability and Absence of Violence/Terrorism: Estimate`,
+    `Political Stability and Absence of Violence/Terrorism: Percentile Rank`
+  )
+
+# Vérifier le résultat
+head(WGI_selected)
+```
+
+```{r}
+# --- 1. Vérification des 6 premières lignes du nouveau dataset ---
+# Utiliser WGI_cleaned qui vient d'être créé
+head(WGI_cleaned)
+
+# --- 2. Tableau 1 : Résumé concis des dimensions ---
+summary_info <- tibble(
+  Dataset = "WGI_cleaned",
+  Rows = nrow(WGI_cleaned),
+  Columns = ncol(WGI_cleaned)
+)
+
+kable(summary_info, caption = "Tableau 1 : Résumé du dataset WGI_cleaned")
+
+# --- 3. Tableau 2 : Liste des variables sélectionnées ---
+variable_table <- tibble(
+  Index = seq_along(names(WGI_cleaned)),
+  Variable = names(WGI_cleaned) 
+)
+
+kable(variable_table, caption = "Tableau 2 : Liste des variables du dataset WGI_cleaned")
+```
+
+## Data joining
+
+We will now join our three datasets :
+
+## Description of our research question
+
+Research question : Do the quality of institutions and the development of institutional financing systems enable women to empower themselves in the social and decision-making domains ?
+
+The aim of our research question is to understand whether countries with higher-governance and more developed financial inclusion infrastructures provide better opportunities for women to participate in economic, social and decision-making activities.
+By combining multiple datasets, our study integrates information on financial behavior, governance indicators and women's empowerment to explore this relationship in a comprehensive manner.
+
+Dependent variables : women empowerment in the social domain and in the decision making domain
+
+Explanatory variables : From the Findex dataset : borrowing from family and friends (borrow_family_friends), using digital payments (digital_payment), saving in a bank account (save_bank_account), borrowing to start a business (borrow_start_business), and having a bank account (has_bank_account)
+
+From the Worldwide governance index : Voice and Accountability: Estimate and Voice and Accountability: Percentile Rank, Rule of Law: Estimate and Rule of Law: Percentile Rank, and Political Stability and Absence of Violence/Terrorism: Estimate and Political Stability and Absence of Violence/Terrorism: Percentile Rank
+
+Our analysis relies primarily on three datasets.
+First the Global Findex Database 2025, which privides demand-side data on financial inclusion, including indicators such as account ownership, saving behaviour, borrowing formal and informal sources and use of digital financial services.
+These variables are critical to understanding women's access to financial resources and their ability to manage risk and participate in economic activity.
+
+The WGI dataset offers a measure of institutional quality across multiple dimensions such as political stability, rule of la, regulatory quality and voice and accountability.
+These indicators allow us to assess the institutional context in where financial systems operate.
+
+*To address our research question we plan to rely on different academic resources such as*
+
+To provide a more nuanced analysis, we will do distinctions between countries to see how cultural and legal frameworks often influence women's access to financial resources and participation in economic activity.
+We will certainly at a point of our analysis do a distinction between : Muslim / non Muslim countries, countries with strong / weak institutions, countries with important regulatory / with less legal framework.
+
+In term of methodology our project will combine descriptive statistics, correlation analysis and regression models.
+The goal is to assess the relationship between governance quality, financial inclusion and women's empowerment.
+The clean datasets allo us to focus on the most relevant variables.
+
+## Graphical representation of our two graphical representations
