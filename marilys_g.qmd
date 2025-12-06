@@ -324,4 +324,5 @@ To provide a more nuanced analysis, we will do distinctions between countries to
 In term of methodology our project will combine descriptive statistics, correlation analysis and regression models. The goal is to assess the relationship between governance quality, financial inclusion and women's empowerment. The clean datasets allo us to focus on the most relevant variables. 
 
 
+
 ## Graphical representation of our two graphical representations
