@@ -11,6 +11,8 @@ library(ggplot2)
 library(dplyr)
 library(tidyr)
 library(vroom)
+library(knitr)
+library(tibble)
 ```
 
 #Initialisation : 
@@ -20,6 +22,10 @@ library(readxl)
 GMPI <- read_excel("~/dm-final-project/mpi.xlsx")
 write.csv(GMPI, "C:/Users/bkreb/Documents/mpi.csv", row.names = FALSE)
 GMPI_vroom <- vroom("~/dm-final-project/mpi.csv")
+```
+
+```{r}
+Empowerment <- vroom("women_inequalities.csv")
 ```
 
 ##Dataset Empowerment 
@@ -38,6 +44,26 @@ From this survey are drawn 9 indicators,  distributed across 3 domains :
 - *Violence Domain*: This domain classifies women based on their level of empowerment regarding violence, again categorized as high, medium, or low. This is closely related to the concept of intrinsic agency, as a proxy for the woman’s incorporation of gender norms-related acceptability of violence.
 
 Those 9 indicators are disaggregated by age (with two subgroups 15-19yo and 20-49yo), economic status (determined within the country by calculating quintiles and deciles of the population), education (highest level of education reached by the women), place of residence and subnational regions.
+
+
+## Cleaning 
+```{r}
+str(Empowerment)
+```
+```{r, echo=FALSE}
+info <- function(df) {
+  data.frame(file = deparse(substitute(df)), row_number = nrow(df), col_number = ncol(df), missing_number = sum(is.na(df)), rows_with_missing_values = sum(apply(df, 1, function(row) any(is.na(row)))))
+}
+```
+
+```{r}
+t_info_GMPI_vroom <- info(GMPI_vroom)
+
+t_info_Empowerment <- info(Empowerment)
+
+bind_rows(t_info_GMPI_vroom, t_info_Empowerment) |> knitr::kable()
+```
+
 
 
 
