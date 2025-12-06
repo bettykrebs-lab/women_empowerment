@@ -7,7 +7,7 @@ editor:
     wrap: sentence
 ---
 
-##Initialisation
+## Initialisation
 
 ```{r}
 library(here)
@@ -15,11 +15,10 @@ library(ggplot2)
 library(dplyr)
 library(vroom)
 library(tidyr)
-install.packages("openxlsx")
 library(openxlsx)
+library(tibble)
+library(knitr)
 ```
-
-Sources : https://www.who.int/data/sets/health-inequality-monitor-dataset#mpi To download the data click on : "data and metadata".
 
 ### Loading the different files
 
@@ -35,15 +34,9 @@ Findex <- vroom("GlobalFindexDatabase2025.csv")
 empowerment <- vroom(here("women_inequalities.csv"))
 ```
 
-With this code we
-
-We will look at two datasets : - findex =\> indicator on financial inclusion - newfirm =\> dataset on new businesses between 2006 and 2022 - number of firms =\> same thing - world governance indicator : giving an idea of the confidence in institution We can keep the year 2021 for firms, new firms and findex.
-Is financial inclusion correlated with less corruption and more political stability ?
-If applicable does this implies that a country will have more new firms ?
-
 ## Dataset Findex
 
-### Description of the dataset and the sources 
+### Description of the dataset and the sources
 
 The Global Findex Database is the world's only demand-side survey on financial inclusion and a leading source of data on how adults around the world access and use financial services.
 
@@ -53,18 +46,15 @@ The database highlights key trends such as the rise of digital financial service
 The Global Findex 2025 introduces the Digital Connectivity Tracker, a new component that measures access to and use of mobile technology.
 Combined with financial inclusion data, it offers a holistic view of how mobile infrastructure is expanding access to financial services and improving economic resilience.
 
-*Methodology* : This dataset is produced by the world bank every four years. The 2025 version, based on nationally representative surveys of about 145,000 adults in 141 economies and conducted over the calendar year 2024, includes updated indicators on access to and use of formal and informal financial services to save, borrow, make payments, and manage financial risk, as well as globally comparable data on ownership of mobile phones, internet use, and digital safety. The data also identify gaps in access to and use of digital and financial services by
-women and poor adults.
+*Methodology* : This dataset is produced by the world bank every four years.
+The 2025 version, based on nationally representative surveys of about 145,000 adults in 141 economies and conducted over the calendar year 2024, includes updated indicators on access to and use of formal and informal financial services to save, borrow, make payments, and manage financial risk, as well as globally comparable data on ownership of mobile phones, internet use, and digital safety.
+The data also identify gaps in access to and use of digital and financial services by women and poor adults.
 
-The survey results reflect a snapshot in time based on questions that respondents
-answered about their habits and experiences during the 12 months preceding the
-survey. Comparing results from the current survey with those from the 2011, 2014,
-2017, and 2021 surveys reveals which trends endure, expand, and grow over time.
+The survey results reflect a snapshot in time based on questions that respondents answered about their habits and experiences during the 12 months preceding the survey.
+Comparing results from the current survey with those from the 2011, 2014, 2017, and 2021 surveys reveals which trends endure, expand, and grow over time.
 
-*How to download this dataset ?* : https://databank.worldbank.org/source/global-findex-database#
-To download the dataset, we initially selected all the variables on the website of the World bank for the country and series category. We selected the year 2024 for the dataset in order to provide the most recent data. 
-
-### Tables describing the dataset
+*How to download this dataset ?* : https://databank.worldbank.org/source/global-findex-database# To download the dataset, we initially selected all the variables on the website of the World bank for the country and series category.
+We selected the year 2024 for the dataset in order to provide the most recent data.
 
 ### Data cleaning
 
@@ -88,8 +78,8 @@ The variables with the fewest missing values are those related to financial incl
 These variables represent key indicators of financial inclusion that we will observe closely.
 
 ### Description of the variables
-For our project we are keeping the variables : 
-- "has_bank_account" : The percentage of respondents who report being employed in the private sector and receiving any money from their employer in the past year in the form of a salary or wages for doing work, and who received that money directly into a bank or similar financial institution account
+
+For our project we are keeping the variables : - "has_bank_account" : The percentage of respondents who report being employed in the private sector and receiving any money from their employer in the past year in the form of a salary or wages for doing work, and who received that money directly into a bank or similar financial institution account
 
 -   "borrow_start_business" : The percentage of respondents who report borrowing any money to start or operate a business in the past year.
 
@@ -103,24 +93,96 @@ For our project we are keeping the variables :
 With this code we are renaming and keeping only the values we are going to study in our project :
 
 ```{r}
-Findex <- Findex %>%
+Findexclean <- Findex %>%
   rename(
     borrow_family_friends     = fin22b,
     digital_payment           = g20.any,
     save_bank_account         = fin17a.17a1.d,
     borrow_start_business     = fin22e,
-    has_bank_account          = fin2.t.d
+    has_bank_account          = fin2.t.d,
+    country = countrynewwb, 
+    codecountry = codewb
+  ) |> 
+  select(
+    country,
+    codecountry,
+    year,
+    borrow_family_friends,
+    digital_payment,
+    save_bank_account,
+    borrow_start_business,
+    has_bank_account
   )
+
 ```
-
-## Dataset World Government index
-
-### Description of the dataset
 
 ### Tables describing the dataset
 
-### Description of the sources
+Here is a table giving the basic informations about our first dataset :
 
+```{r}
+# Tableau 1 : résumé très concis
+summary_info <- tibble(
+  Dataset = "Findex",
+  Rows = nrow(Findex),
+  Columns = ncol(Findex),
+  Variables = ncol(Findex)
+)
+
+kable(summary_info, caption = "Résumé du dataset Findex")
+
+
+# Tableau 2 : liste compacte des variables (1 ligne seulement)
+variable_table <- tibble(
+  Index = seq_along(names(Findex)),
+  Variable = names(Findex)  # colonne vide pour pouvoir compléter proprement
+)
+
+kable(variable_table, caption = "Liste des variables du dataset Findex")
+```
+
+Now let's do the same with our cleaned dataset Findexclean :
+
+```{r}
+# Tableau 1 : résumé très concis
+summary_info <- tibble(
+  Dataset = "Findexclean",
+  Rows = nrow(Findexclean),
+  Columns = ncol(Findexclean),
+  Variables = ncol(Findexclean)
+)
+
+kable(summary_info, caption = "Résumé du dataset Findex")
+
+
+# Tableau 2 : liste compacte des variables (1 ligne seulement)
+variable_table <- tibble(
+  Index = seq_along(names(Findexclean)),
+  Variable = names(Findexclean)  # colonne vide pour pouvoir compléter proprement
+)
+
+kable(variable_table, caption = "Liste des variables du dataset Findex")
+```
+
+## Dataset Worldwide Government index
+
+### Description of the dataset
+
+The worldwide governance indicators (WGI) measure governance in over 200 countries and territories from 1996 to 2023.
+Governance is defined as the traditions and institutions through which authority is exercised, including how governments are selected, monitored and replaced.
+
+The WGI covers six dimensions : 1° voice and accountability 2° political stability and absence of violence or terrorism 3° government effectiveness 4° regulatory quality 5° rule of law 6° control of corruption
+
+*Methodology* : The WGI is built by the World Bank from more than 30 data sources incuding surveys of citizens and firms, NGO reports, commercial business information and assessments from public sector organizations.
+Data are from each source are rescaled to a 0-1 tange and combined using an unobserved components model which adjusts for differences across sources, weights them according to correlation and generates governance estimates with standard errors.
+All the scores are reported in standardized units and percentiles from 0 to 100.
+When the value is higher, it indicates better governance.
+
+The WGI provide a global overview of governance quality helping to identify patterns, strengths and weaknesses.
+It is supporting research in the relationship between governance, economic growth and social development.
+
+*How to download this dataset ?* : https://databank.worldbank.org/source/worldwide-governance-indicators To download the dataset, we initially selected all the variables on the website of the World bank for the country and series category.
+At first we decided to keep the data for all the years, we will now determine which year seems the most relevant for our observations.
 
 ### Data cleaning
 
@@ -140,7 +202,7 @@ Dans le dataset je regarde de quoi est composée la colonne 3 :
 unique(WGI$`Series Name`)
 ```
 
-With pivot wider, we are sorting the data so and dividing our column Series Name in different columns for each variable that is studied.
+With pivot wider, we are sorting the data and dividing our column Series Name in different columns for each variable that is studied.
 The dataset named WGI_wide is the final dataset that we will use for our project.
 
 ```{r}
@@ -173,35 +235,66 @@ WGI_wide <- WGI_long %>%
   )
 ```
 
-Now let's determine which variable is the more relevant for our analysis For our research question and given the past variables that we have, we are using : - political stability and the absence of terrorism as an explicative variable of financial inclusion : - government effectiveness : Government Effectiveness captures perceptions of the quality of public services, the quality of the civil service and the degree of its independence from political pressures, the quality of policy formulation and implementation, and the credibility of the government's commitment to such policies.
+### Description of the variables
+
+Now let's determine which variables are the most relevant for our analysis.
+For our research question and given the past variables that we have, we are using : - political stability and the absence of terrorism as an explicative variable of women empowerment It measures perceptions of the likelihood of political instability and/or politically-motivated violence, including terrorism.
 Estimate gives the country's score on the aggregate indicator, in units of a standard normal distribution, i.e. ranging from approximately -2.5 to 2.5.
 
-For the relevant years that we will certainly keep will be : 1999, 2009 (to see the effect of the Subprime crisis) and 2023 for the most recent data on world governmeent indexes.
+-   Voice and accountability : captures perceptions of the extent to which a country's citizens are able to participate in selecting their government, as well as freedom of expression, freedom of association, and a free media.
+    Estimate gives the country's score on the aggregate indicator, in units of a standard normal distribution, i.e. ranging from approximately -2.5 to 2.5.
 
-Why is it relevant ?
-Because when public services are functioning in a right way they allow the development of banks and financial institutions.
+-   rule of law : Regulatory Quality captures perceptions of the ability of the government to formulate and implement sound policies and regulations that permit and promote private sector development.
 
--   Rule of law : Rule of Law captures perceptions of the extent to which agents have confidence in and abide by the rules of society, and in particular the quality of contract enforcement, property rights, the police, and the courts, as well as the likelihood of crime and violence. Estimate gives the country's score on the aggregate indicator, in units of a standard normal distribution, i.e. ranging from approximately -2.5 to 2.5.
+For each indicators we keep the estimate and the percentile value: - Estimate gives the country's score on the aggregate indicator, in units of a standard normal distribution.
+- Percentile rank indicates the country's rank among all countries covered by the aggregate indicator, with 0 corresponding to lowest rank, and 100 to highest rank.
+Percentile ranks have been adjusted to correct for changes over time in the composition of the countries covered by the WGI.
 
-For all these variables we decided to keep - the estimate coefficient giving an idea of the importance of the variable - the percentile rank that is letting us know what is the performance of the country
+In our project we will certainly focus more on the years : 1998, 2009 (to see the effect of the Subprime crisis) and 2023 for the most recent data on world government indexes.
 
-(Data from the Women Empowerment dataset)
-
-### Description of the variables
-Main target variables : women with high empowerment in the decision making process, women with high empowerment in the social domain
-
-
-## Dataset V-Democracy :
-
-In this dataset we will keep the women's political participation index through estimations for the years : 1999, 2009 and 2023.
+We will now compute a clean dataset for WGI, keeping only the estimate values and the percentile rank of the country in order to compare them.
 
 ```{r}
-womenpolitics <- read.csv(here("data", "womeninpolitics.csv"))
+# Sélectionner uniquement les colonnes d'intérêt
+WGI_cleaned <- WGI_wide |>
+  select(
+    Country.Name,
+    Country.Code,
+    Annee,
+    `Voice and Accountability: Estimate`,
+    `Voice and Accountability: Percentile Rank`,
+    `Rule of Law: Estimate`,
+    `Rule of Law: Percentile Rank`,
+    `Political Stability and Absence of Violence/Terrorism: Estimate`,
+    `Political Stability and Absence of Violence/Terrorism: Percentile Rank`
+  )
+
+# Vérifier le résultat
+head(WGI_selected)
 ```
 
-No cleaning was necessary for this dataset since we kept everything.
+```{r}
+# --- 1. Vérification des 6 premières lignes du nouveau dataset ---
+# Utiliser WGI_cleaned qui vient d'être créé
+head(WGI_cleaned)
 
-How to download : click on this link https://www.v-dem.net/data/the-v-dem-dataset/country-year-v-dem-fullothers-v15/ Then download the dataset called "Country-Year: V-Dem Full+Others" On this dataset we did no specific clearing nor joining since it was complete and appeared well.
+# --- 2. Tableau 1 : Résumé concis des dimensions ---
+summary_info <- tibble(
+  Dataset = "WGI_cleaned",
+  Rows = nrow(WGI_cleaned),
+  Columns = ncol(WGI_cleaned)
+)
+
+kable(summary_info, caption = "Tableau 1 : Résumé du dataset WGI_cleaned")
+
+# --- 3. Tableau 2 : Liste des variables sélectionnées ---
+variable_table <- tibble(
+  Index = seq_along(names(WGI_cleaned)),
+  Variable = names(WGI_cleaned) 
+)
+
+kable(variable_table, caption = "Tableau 2 : Liste des variables du dataset WGI_cleaned")
+```
 
 ## Data joining
 
@@ -209,20 +302,26 @@ We will now join our three datasets :
 
 ## Description of our research question
 
-Question : Can we observe a correlation between the quality of institutions, financial inclusion, and women’s ability to be independent in social and financial spheres?
-
-Variables à expliquer : Women with high empowerment in the decision-making process and Women with high empowerment in the social domain.
-
-Variables selected : 
-- quality of institutions : we use political stability, absence of terrorism, and government effectiveness from the World Governance Indicators (WGI) to measure individuals’ confidence in their institutions.
-- financial inclusion : "has_bank_account", "borrow_start_business", "save_bank_account", "digital payment", "borrow family_friends"
 Research question : Do the quality of institutions and the development of institutional financing systems enable women to empower themselves in the social and decision-making domains ?
-- women's inclusion in the political sphere => through the
+
+The aim of our research question is to understand whether countries with higher-governance and more developed financial inclusion infrastructures provide better opportunities for women to participate in economic, social and decision-making activities. By combining multiple datasets, our study integrates information on financial behavior, governance indicators and women's empowerment to explore this relationship in a comprehensive manner. 
+
+Dependent variables : women empowerment in the social domain and in the decision making domain
+
+Explanatory variables : 
+From the Findex dataset : borrowing from family and friends (borrow_family_friends), using digital payments (digital_payment), saving in a bank account (save_bank_account), borrowing to start a business (borrow_start_business), and having a bank account (has_bank_account)
+
+From the Worldwide governance index : Voice and Accountability: Estimate and Voice and Accountability: Percentile Rank, Rule of Law: Estimate and Rule of Law: Percentile Rank, and Political Stability and Absence of Violence/Terrorism: Estimate and Political Stability and Absence of Violence/Terrorism: Percentile Rank
+
+Our analysis relies primarily on three datasets. First the Global Findex Database 2025, which privides demand-side data on financial inclusion, including indicators such as account ownership, saving behaviour, borrowing formal and informal sources and use of digital financial services. These variables are critical to understanding women's access to financial resources and their ability to manage risk and participate in economic activity. 
+
+The WGI dataset offers a measure of institutional quality across multiple dimensions such as political stability, rule of la, regulatory quality and voice and accountability. These indicators allow us to assess the institutional context in where financial systems operate.
+
+*To address our research question we plan to rely on different academic resources such as*
+
+To provide a more nuanced analysis, we will do distinctions between countries to see how cultural and legal frameworks often influence women's access to financial resources and participation in economic activity. We will certainly at a point of our analysis do a distinction between : Muslim / non Muslim countries, countries with strong / weak institutions, countries with important regulatory / with less legal framework. 
+
+In term of methodology our project will combine descriptive statistics, correlation analysis and regression models. The goal is to assess the relationship between governance quality, financial inclusion and women's empowerment. The clean datasets allo us to focus on the most relevant variables. 
+
 
 ## Graphical representation of our two graphical representations
-
-
-
-
-
-
