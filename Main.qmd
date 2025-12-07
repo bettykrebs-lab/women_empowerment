@@ -6,6 +6,34 @@ format: html
 
 ##Github We worked in the following github repositery https://github.com/bettykrebs-lab/women_empowerment.git
 
+## Description of our research question
+
+Research question : Do the quality of institutions and the development of institutional financing systems enable women to empower themselves in the social and decision-making domains ?
+
+The aim of our research question is to understand whether countries with higher-governance and more developed financial inclusion infrastructures provide better opportunities for women to participate in economic, social and decision-making activities.
+By combining multiple datasets, our study integrates information on financial behavior, governance indicators and women's empowerment to explore this relationship in a comprehensive manner.
+
+Dependent variables : women empowerment in the social domain and in the decision making domain
+
+Explanatory variables : From the Findex dataset : borrowing from family and friends (borrow_family_friends), using digital payments (digital_payment), saving in a bank account (save_bank_account), borrowing to start a business (borrow_start_business), and having a bank account (has_bank_account)
+
+From the Worldwide governance index : Voice and Accountability: Estimate and Voice and Accountability: Percentile Rank, Rule of Law: Estimate and Rule of Law: Percentile Rank, and Political Stability and Absence of Violence/Terrorism: Estimate and Political Stability and Absence of Violence/Terrorism: Percentile Rank
+
+Our analysis relies primarily on three datasets.
+First the Global Findex Database 2025, which privides demand-side data on financial inclusion, including indicators such as account ownership, saving behaviour, borrowing formal and informal sources and use of digital financial services.
+These variables are critical to understanding women's access to financial resources and their ability to manage risk and participate in economic activity.
+
+The WGI dataset offers a measure of institutional quality across multiple dimensions such as political stability, rule of la, regulatory quality and voice and accountability.
+These indicators allow us to assess the institutional context in where financial systems operate.
+
+To provide a more nuanced analysis, we will do distinctions between countries to see how cultural and legal frameworks often influence women's access to financial resources and participation in economic activity.
+We will certainly at a point of our analysis do a distinction between : Muslim / non Muslim countries, countries with strong / weak institutions, countries with important regulatory / with less legal framework.
+
+In term of methodology our project will combine descriptive statistics, correlation analysis and regression models.
+The goal is to assess the relationship between governance quality, financial inclusion and women's empowerment.
+The clean datasets allow us to focus on the most relevant variables.
+
+
 ##Initialisation
 
 ```{r}
@@ -19,7 +47,7 @@ library(knitr)
 ```
 
 ```{r}
-Empowerment <- vroom("women_inequalities.csv")
+Empowerment <- vroom(here("women_inequalities.csv"))
 ```
 
 ## Dataset Empowerment 
@@ -360,36 +388,22 @@ kable(variable_table, caption = "Tableau 2 : Liste des variables du dataset WGI_
 
 We will now join our three datasets :
 
-## Description of our research question
+## Description of the data joining 
 
-Research question : Do the quality of institutions and the development of institutional financing systems enable women to empower themselves in the social and decision-making domains ?
+```{r}
+library(data.table)
 
-The aim of our research question is to understand whether countries with higher-governance and more developed financial inclusion infrastructures provide better opportunities for women to participate in economic, social and decision-making activities.
-By combining multiple datasets, our study integrates information on financial behavior, governance indicators and women's empowerment to explore this relationship in a comprehensive manner.
+setDT(Empowerment)
+setDT(Findexclean)
 
-Dependent variables : women empowerment in the social domain and in the decision making domain
+# Merge par la colonne 'country' qui existe dans les deux datasets
+merged_data <- merge(Empowerment, Findexclean,
+                     by = "country",  # correspond à 'country' dans les deux datasets
+                     all.x = TRUE)
 
-Explanatory variables : From the Findex dataset : borrowing from family and friends (borrow_family_friends), using digital payments (digital_payment), saving in a bank account (save_bank_account), borrowing to start a business (borrow_start_business), and having a bank account (has_bank_account)
-
-From the Worldwide governance index : Voice and Accountability: Estimate and Voice and Accountability: Percentile Rank, Rule of Law: Estimate and Rule of Law: Percentile Rank, and Political Stability and Absence of Violence/Terrorism: Estimate and Political Stability and Absence of Violence/Terrorism: Percentile Rank
-
-Our analysis relies primarily on three datasets.
-First the Global Findex Database 2025, which privides demand-side data on financial inclusion, including indicators such as account ownership, saving behaviour, borrowing formal and informal sources and use of digital financial services.
-These variables are critical to understanding women's access to financial resources and their ability to manage risk and participate in economic activity.
-
-The WGI dataset offers a measure of institutional quality across multiple dimensions such as political stability, rule of la, regulatory quality and voice and accountability.
-These indicators allow us to assess the institutional context in where financial systems operate.
-
-*To address our research question we plan to rely on different academic resources such as*
-
-To provide a more nuanced analysis, we will do distinctions between countries to see how cultural and legal frameworks often influence women's access to financial resources and participation in economic activity.
-We will certainly at a point of our analysis do a distinction between : Muslim / non Muslim countries, countries with strong / weak institutions, countries with important regulatory / with less legal framework.
-
-In term of methodology our project will combine descriptive statistics, correlation analysis and regression models.
-The goal is to assess the relationship between governance quality, financial inclusion and women's empowerment.
-The clean datasets allo us to focus on the most relevant variables.
-
-##Description of the data joining 
+head(merged_data)
+```
 
 
-## Graphical representation of our two graphical representations
+
+
