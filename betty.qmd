@@ -94,7 +94,10 @@ Here is a short description of the most important variables in the dataset "Empo
 ##Description of the data joining and cleaning 
 
 ```{r}
-git merge --abort
+Empowerment <- Empowerment |>  #renaming variables to allow for easier joining
+  rename(country = iso3)
+Findex <- Findex |>
+  rename(country = codewb)
 ```
 
 
