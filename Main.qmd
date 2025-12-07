@@ -48,3 +48,44 @@ Those 9 indicators are disaggregated by age (with two subgroups 15-19yo and 20-4
 ```{r}
 str(Empowerment)
 ```
+
+###Table which gives basic information about the data file
+
+```{r}
+info <- function(df) {
+  data.frame(
+    file = deparse(substitute(df)),
+    row_number = nrow(df),
+    col_number = ncol(df),
+    missing_number = sum(sapply(df, function(col) sum(is.na(col)))),
+    rows_with_missing_values = sum(!complete.cases(df))
+  )
+}
+
+
+t_info_GMPI_vroom <- info(GMPI_vroom)
+
+t_info_Empowerment <- info(Empowerment)
+
+bind_rows(t_info_GMPI_vroom, t_info_Empowerment) |> 
+  knitr::kable() 
+```
+
+
+
+
+###The most important variables 
+
+Here is a short description of the most important variables in the dataset "Empowerment" : 
+
+ - iso3 : abreviation of the country in 3 capital letters
+ 
+ - indicator_name : constructed as women with high/medium/low empowerment in the social independance domain/decision-making domain/attitude to violence
+ 
+ - subgroups : regroups 3 age categories, 10 deciles and 5 quintiles. Transformed into integers with the variable reference_subgroup
+ 
+ - whoreg6 : subnational region
+ 
+ - wbincome2024 : income of the country in 2024
+
+##Description of the data joining and cleaning 
