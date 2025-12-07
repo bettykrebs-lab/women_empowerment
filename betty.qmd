@@ -22,10 +22,12 @@ library(readxl)
 GMPI <- read_excel("~/dm-final-project/mpi.xlsx")
 write.csv(GMPI, "C:/Users/bkreb/Documents/mpi.csv", row.names = FALSE)
 GMPI_vroom <- vroom("~/dm-final-project/mpi.csv")
+"C:\Users\bkreb\OneDrive\Documents\Dauphine\Data management\women_empowerment\GlobalFindexDatabase2025.csv"
 ```
 
 ```{r}
 Empowerment <- vroom("women_inequalities.csv")
+Findex <- vroom("C:/Users/bkreb/OneDrive/Documents/Dauphine/Data management/women_empowerment/GlobalFindexDatabase2025.csv")
 ```
 
 ##Dataset Empowerment 
@@ -100,6 +102,26 @@ Findex <- Findex |>
   rename(country = codewb)
 ```
 
+```{r}
+library(data.table)
+
+setDT(Empowerment)
+setDT(Findex)
+
+result <- merge(Empowerment, Findex, by = "country", all.x = TRUE)
+```
+
+```{r}
+findex_empowerment |>
+  ggplot(aes(x = fiaccount.t.d, y = swpdechigh, label = country)) +
+  geom_point(color = "blue") +
+  geom_text(vjust = -0.5, size = 3) +
+  theme_minimal()
+```
+
+```{r}
+head(findex_empowerment)
+```
 
 ##Description of our research question 
 

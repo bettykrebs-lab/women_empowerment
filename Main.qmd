@@ -89,3 +89,7 @@ Here is a short description of the most important variables in the dataset "Empo
  - wbincome2024 : income of the country in 2024
 
 ##Description of the data joining and cleaning 
+
+
+
+
