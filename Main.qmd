@@ -383,9 +383,6 @@ variable_table <- tibble(
 kable(variable_table, caption = "Tableau 2 : Liste des variables du dataset WGI_cleaned")
 ```
 
-## Data joining
-
-We will now join our three datasets :
 
 ## Description of the data joining 
 
@@ -402,6 +399,21 @@ merged_data <- merge(Empowerment, Findexclean,
 
 head(merged_data)
 ```
+
+```{r}
+library(data.table)
+library(ggplot2)
+
+setDT(Empowerment)
+setDT(WGI_cleaned)
+
+# Merge par la colonne country / Country.Name
+merged_empowermentWGI <- merge(Empowerment, WGI_cleaned,
+                     by.x = "country", by.y = "Country.Name",
+                     all.x = TRUE)
+```
+
+
 
 
 
