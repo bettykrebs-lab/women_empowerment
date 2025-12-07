@@ -25,3 +25,26 @@ GMPI <- vroom(here("gmpi.csv"))
 ```{r}
 Empowerment <- vroom("women_inequalities.csv")
 ```
+
+##Dataset Empowerment 
+
+###Short description of the source
+
+This dataset also comes from the World Health Organization, which issues the
+survey-based women's empowerment index (SWPER). This index was first tested in Africa in 2017 and was then extended to the rest of the world. It is the first index in the gender domain to propose an individual-level comparison between a large number of countries and over time. 
+
+From this survey are drawn 9 indicators,  distributed across 3 domains : 
+
+- *Social Independence Domain*: This domain classifies women based on their level of empowerment within society: high, medium, or low. It includes schooling attainment, access to information, age at pivotal life events and spousal asset differentials and access to information.
+
+- *Decision-Making Domain*: This domain assesses women's empowerment in making decisions, classifying them as having high, medium, or low empowerment. This examines the extent of the woman’s participation is household decisions, which may also be considered a measure of instrumental agency.
+
+- *Violence Domain*: This domain classifies women based on their level of empowerment regarding violence, again categorized as high, medium, or low. This is closely related to the concept of intrinsic agency, as a proxy for the woman’s incorporation of gender norms-related acceptability of violence.
+
+Those 9 indicators are disaggregated by age (with two subgroups 15-19yo and 20-49yo), economic status (determined within the country by calculating quintiles and deciles of the population), education (highest level of education reached by the women), place of residence and subnational regions.
+
+
+## Cleaning 
+```{r}
+str(Empowerment)
+```
