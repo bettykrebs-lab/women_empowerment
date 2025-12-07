@@ -93,6 +93,11 @@ Here is a short description of the most important variables in the dataset "Empo
 
 ##Description of the data joining and cleaning 
 
+```{r}
+git merge --abort
+```
+
+
 ##Description of our research question 
 
 ##Graphical representation of our main target variable 

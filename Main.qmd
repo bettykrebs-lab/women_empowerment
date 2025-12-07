@@ -3,10 +3,11 @@ title: "Description"
 author: "Betty Krebs & Marilys Guiban"
 format: html
 ---
-##Github 
-We worked in the following github repositery https://github.com/bettykrebs-lab/women_empowerment.git
+
+##Github We worked in the following github repositery https://github.com/bettykrebs-lab/women_empowerment.git
 
 ##Initialisation
+
 ```{r}
 library(here)
 library(ggplot2)
@@ -24,7 +25,3 @@ GMPI <- vroom(here("gmpi.csv"))
 ```{r}
 Empowerment <- vroom("women_inequalities.csv")
 ```
-
-
-
-
