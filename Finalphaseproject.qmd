@@ -1,0 +1,133 @@
+---
+title: "Finalphaseproject"
+author: "Betty Krebs & Marilys Guiban"
+format: pdf
+filters:
+  - wordcount
+---
+
+##Initialisation
+
+```{r}
+library(here)
+library(ggplot2)
+library(dplyr)
+library(vroom)
+library(tidyr)
+library(openxlsx)
+library(knitr)
+```
+
+## Research question presentation 
+
+Research question : Do the quality of institutions and the development of institutional financing systems enable women to empower themselves in the social and decision-making domains ?
+
+The aim of our research question is to understand whether countries with higher-governance and more developed financial inclusion infrastructures provide better opportunities for women to participate in economic, social and decision-making activities.
+By combining multiple datasets, our study integrates information on financial behavior, governance indicators and women's empowerment to explore this relationship in a comprehensive manner.
+
+Dependent variables : women empowerment in the social domain and in the decision making domain
+
+Explanatory variables : From the Findex dataset : borrowing from family and friends (borrow_family_friends), using digital payments (digital_payment), saving in a bank account (save_bank_account), borrowing to start a business (borrow_start_business), and having a bank account (has_bank_account)
+
+From the Worldwide governance index : Voice and Accountability: Estimate and Voice and Accountability: Percentile Rank, Rule of Law: Estimate and Rule of Law: Percentile Rank, and Political Stability and Absence of Violence/Terrorism: Estimate and Political Stability and Absence of Violence/Terrorism: Percentile Rank
+
+Our analysis relies primarily on three datasets.
+First the Global Findex Database 2025, which privides demand-side data on financial inclusion, including indicators such as account ownership, saving behaviour, borrowing formal and informal sources and use of digital financial services.
+These variables are critical to understanding women's access to financial resources and their ability to manage risk and participate in economic activity.
+
+The WGI dataset offers a measure of institutional quality across multiple dimensions such as political stability, rule of la, regulatory quality and voice and accountability.
+These indicators allow us to assess the institutional context in where financial systems operate.
+
+The Empowerment dataset. 
+
+To provide a more nuanced analysis, we will do distinctions between countries to see how cultural and legal frameworks often influence women's access to financial resources and participation in economic activity.
+We will certainly at a point of our analysis do a distinction between : Muslim / non Muslim countries, countries with strong / weak institutions, countries with important regulatory / with less legal framework.
+
+In term of methodology our project will combine descriptive statistics, correlation analysis and regression models.
+The goal is to assess the relationship between governance quality, financial inclusion and women's empowerment.
+The clean datasets allow us to focus on the most relevant variables.
+
+Pour répondre à cette question de recherche nous allons : 
+1° analyse géographique comparative des pays par groupes de revenus et de l'émancipation des femmes : par la réalisation de nuages de points 
+L'analyse se fera par : niveau de développement économique (middle, low, high income countrie), par religion dominante (muslim vs non muslim en ajoutant un nouveau dataset), 
+2° analyse de la corrélation entre finance institutions et autonomie des femmes,  
+
+3° réaliser des régressions économétriques en isolant inclusion financière et degré d'autonomie des femmes 
+Les tests se composeront de test de significativité des coefficients et de la qualité du modèle 
+(à réaliser sur plusieurs variables : 3 tests biens ciblés à choisir)
+
+
+## Dataset description 
+
+### Empowerment 
+```{r}
+Empowerment <- readRDS(here("datafinalproject", "Empowerment_clean.rds"))
+```
+
+This dataset comes from the World Health Organization, which issues the
+survey-based women's empowerment index (SWPER). This index was first tested in Africa in 2017 and was then extended to the rest of the world. It is the first index in the gender domain to propose an individual-level comparison between a large number of countries and over time. 
+
+From this survey are drawn 9 indicators,  distributed across 3 domains : 
+- *Social Independence Domain*
+- *Decision-Making Domain*
+- *Violence Domain*
+
+### Findex (cleaned dataset)
+```{r}
+Findex <- readRDS(here("datafinalproject", "Findexclean.rds"))
+```
+
+In the cleaned format of this dataset we have 8 variables : 
+- Country, codecountry and year : giving informations about the observations 
+
+- "has_bank_account" : The percentage of respondents who report being employed in the private sector and receiving any money from their employer in the past year in the form of a salary or wages for doing work, and who received that money directly into a bank or similar financial institution account
+
+-   "borrow_start_business" : The percentage of respondents who report borrowing any money to start or operate a business in the past year.
+
+-   "save_bank_account" : The percentage of respondents who report saving or setting aside any money at a bank or similar financial institution or using a mobile money account to save in the past year.
+
+-   "digital payment" : The percentage of respondents who report using mobile money, a debit or credit card, or a mobile phone to make a payment from an account--or report using the internet to pay bills or to buy something online or in a store--in the past year.
+    This includes respondents who report paying bills, sending or receiving remittances, receiving payments for agricultural products, receiving government transfers, receiving wages, or receiving a public sector pension directly from or into a bank or similar financial institution account or through a mobile money account in the past year.
+
+-   "borrow family_friends" : The percentage of respondents who report borrowing any money from family, relatives, or friends in the past year
+
+### WGI (cleaned format) 
+```{r}
+WGI <- readRDS(here("datafinalproject", "WGI_cleaned.rds"))
+```
+
+For our research question we are using : 
+- political stability and the absence of terrorism as an explicative variable of women empowerment It measures perceptions of the likelihood of political instability and/or politically-motivated violence, including terrorism.
+Estimate gives the country's score on the aggregate indicator, in units of a standard normal distribution, i.e. ranging from approximately -2.5 to 2.5.
+
+-   Voice and accountability : captures perceptions of the extent to which a country's citizens are able to participate in selecting their government, as well as freedom of expression, freedom of association, and a free media.
+    Estimate gives the country's score on the aggregate indicator, in units of a standard normal distribution, i.e. ranging from approximately -2.5 to 2.5.
+
+-   rule of law : Regulatory Quality captures perceptions of the ability of the government to formulate and implement sound policies and regulations that permit and promote private sector development.
+
+For each indicators we keep the estimate and the percentile value: 
+- Estimate gives the country's score on the aggregate indicator, in units of a standard normal distribution.
+- Percentile rank indicates the country's rank among all countries covered by the aggregate indicator, with 0 corresponding to lowest rank, and 100 to highest rank.
+Percentile ranks have been adjusted to correct for changes over time in the composition of the countries covered by the WGI.
+
+### Joined file 
+The final dataset integrates all variables from the aforementioned sources. By using the country code and year as primary keys, we successfully merged the data into a single, comprehensive table for our analysis.
+```{r}
+final_dataset <- readRDS(here("datafinalproject", "Final_Dataset.rds"))
+```
+
+## Graphical representations 
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
