@@ -460,8 +460,6 @@ These variables are critical to understanding women's access to financial resour
 The WGI dataset offers a measure of institutional quality across multiple dimensions such as political stability, rule of la, regulatory quality and voice and accountability.
 These indicators allow us to assess the institutional context in where financial systems operate.
 
-*To address our research question we plan to rely on different academic resources such as*
-
 To provide a more nuanced analysis, we will do distinctions between countries to see how cultural and legal frameworks often influence women's access to financial resources and participation in economic activity.
 We will certainly at a point of our analysis do a distinction between : Muslim / non Muslim countries, countries with strong / weak institutions, countries with important regulatory / with less legal framework.
 
