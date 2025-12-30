@@ -47,7 +47,7 @@ library(knitr)
 ```
 
 ```{r}
-Empowerment <- vroom(here("women_inequalities.csv"))
+Empowerment <- vroom(here("dataproject", "women_inequalities.csv"))
 ```
 
 ## Dataset Empowerment 
@@ -91,7 +91,6 @@ t_info_Empowerment <- info(Empowerment)
 
 
 
-
 ###The most important variables 
 
 Here is a short description of the most important variables in the dataset "Empowerment" : 
@@ -112,7 +111,7 @@ Here is a short description of the most important variables in the dataset "Empo
 ### Description of the dataset and the sources
 
 ```{r}
-Findex <- vroom("GlobalFindexDatabase2025.csv")
+Findex <- vroom(here("dataproject", "GlobalFindexDatabase2025.csv"))
 ```
 
 ### Dataset Findex
@@ -126,7 +125,7 @@ The Global Findex 2025 introduces the Digital Connectivity Tracker, a new compon
 Combined with financial inclusion data, it offers a holistic view of how mobile infrastructure is expanding access to financial services and improving economic resilience.
 
 *Methodology* : This dataset is produced by the world bank every four years.
-The 2025 version, based on nationally representative surveys of about 145,000 adults in 141 economies and conducted over the calendar year 2024, includes updated indicators on access toand use of formal and informal financial services to save, borrow, make payments, and manage financial risk, as well as globally comparable data on ownership of mobile phones, internet use, and digital safety.
+The 2025 version, based on nationally representative surveys of about 145,000 adults in 141 economies and conducted over the calendar year 2024, includes updated indicators on access and use of formal and informal financial services to save, borrow, make payments, and manage financial risk, as well as globally comparable data on ownership of mobile phones, internet use, and digital safety.
 The data also identify gaps in access to and use of digital and financial services by women and poor adults.
 
 The survey results reflect a snapshot in time based on questions that respondents answered about their habits and experiences during the 12 months preceding the survey.
@@ -157,7 +156,8 @@ top15_colonnes
 
 ### Description of the variables
 
-For our project we are keeping the variables : - "has_bank_account" : The percentage of respondents who report being employed in the private sector and receiving any money from their employer in the past year in the form of a salary or wages for doing work, and who received that money directly into a bank or similar financial institution account
+For our project we are keeping the variables : 
+- "has_bank_account" : The percentage of respondents who report being employed in the private sector and receiving any money from their employer in the past year in the form of a salary or wages for doing work, and who received that money directly into a bank or similar financial institution account
 
 -   "borrow_start_business" : The percentage of respondents who report borrowing any money to start or operate a business in the past year.
 
@@ -199,7 +199,6 @@ Findexclean <- Findex %>%
 Here is a table giving the basic informations about our first dataset :
 
 ```{r}
-# Tableau 1 : résumé très concis
 summary_info <- tibble(
   Dataset = "Findex",
   Rows = nrow(Findex),
@@ -210,10 +209,9 @@ summary_info <- tibble(
 kable(summary_info, caption = "Résumé du dataset Findex")
 
 
-# Tableau 2 : liste compacte des variables (1 ligne seulement)
 variable_table <- tibble(
   Index = seq_along(names(Findex)),
-  Variable = names(Findex)  # colonne vide pour pouvoir compléter proprement
+  Variable = names(Findex) 
 )
 
 kable(variable_table, caption = "Liste des variables du dataset Findex")
@@ -245,7 +243,7 @@ kable(variable_table, caption = "Liste des variables du dataset Findex")
 ## Dataset Worldwide Government index
 
 ```{r}
-WGI <- vroom(here("WGI.csv"))
+WGI <- vroom(here("dataproject", "WGI.csv"))
 ```
 
 
@@ -314,19 +312,12 @@ WGI_wide <- WGI_long %>%
 
 ```
 
-Now let's determine which variable is the more relevant for our analysis For our research question and given the past variables that we have, we are using : - political stability and the absence of terrorisme as an explicative variable of financial inclusion : - government effectiveness : Government Effectiveness captures perceptions of the quality of public services, the quality of the civil service and the degree of its independence from political pressures, the quality of policy formulation and implementation, and the credibility of the government's commitment to such policies. Estimate gives the country's score on the aggregate indicator, in units of a standard normal distribution, i.e. ranging from approximately -2.5 to 2.5.
-
-Why is it relevant ? Because when public services are functioning in a right way they allow the development of banks and financial institutions.
-
--   Rule of law : Rule of Law captures perceptions of the extent to which agents have confidence in and abide by the rules of society, and in particular the quality of contract enforcement, property rights, the police, and the courts, as well as the likelihood of crime and violence. Estimate gives the country's score on the aggregate indicator, in units of a standard normal distribution, i.e. ranging from approximately -2.5 to 2.5.
-
-For all these variables we decided to keep - the estimate coefficient giving an idea of the importance of the variable - the percentile rank that is letting us know what is the performance of the country
-
 
 ### Description of the variables
 
 Now let's determine which variables are the most relevant for our analysis.
-For our research question and given the past variables that we have, we are using : - political stability and the absence of terrorism as an explicative variable of women empowerment It measures perceptions of the likelihood of political instability and/or politically-motivated violence, including terrorism.
+For our research question and given the past variables that we have, we are using : 
+- political stability and the absence of terrorism as an explicative variable of women empowerment It measures perceptions of the likelihood of political instability and/or politically-motivated violence, including terrorism.
 Estimate gives the country's score on the aggregate indicator, in units of a standard normal distribution, i.e. ranging from approximately -2.5 to 2.5.
 
 -   Voice and accountability : captures perceptions of the extent to which a country's citizens are able to participate in selecting their government, as well as freedom of expression, freedom of association, and a free media.
@@ -388,30 +379,58 @@ kable(variable_table, caption = "Tableau 2 : Liste des variables du dataset WGI_
 ## Description of the data joining 
 
 ```{r}
-library(data.table)
+library(dplyr)
+library(countrycode)
 
-setDT(Empowerment)
-setDT(Findexclean)
+# Vérifier tous les "pays" uniques
+unique(Findexclean$country)
 
-# Merge par la colonne 'country' qui existe dans les deux datasets
-merged_data <- merge(Empowerment, Findexclean,
-                     by = "country",  # correspond à 'country' dans les deux datasets
-                     all.x = TRUE)
+# Filtrer pour garder uniquement les vrais pays
+Findex_clean_countries <- Findexclean %>%
+  filter(!country %in% c(
+    "World", "High income", "Low income", "Middle East & North Africa (excluding high income)",
+    "Sub-Saharan Africa (excluding high income)", "Europe & Central Asia (excluding high income)",
+    "East Asia & Pacific (excluding high income)", "Latin America & Caribbean (excluding high income)",
+    "Developing economies", "Upper middle income", "Lower middle income"
+  ))
 
-head(merged_data)
+Findex_clean_countries <- Findex_clean_countries %>%
+  mutate(iso3 = countrycode(
+    sourcevar = country,
+    origin = "country.name",
+    destination = "iso3c"
+  ))
+
+# Vérifier
+head(Findex_clean_countries[, c("country", "iso3")])
+
 ```
-
 ```{r}
-library(data.table)
-library(ggplot2)
+library(dplyr)
 
-setDT(Empowerment)
-setDT(WGI_cleaned)
+Findex_merge <- Findexclean %>%
+  filter(!country %in% c(
+    "World", "High income", "Low income", 
+    "Middle East & North Africa (excluding high income)",
+    "Sub-Saharan Africa (excluding high income)", 
+    "Europe & Central Asia (excluding high income)",
+    "East Asia & Pacific (excluding high income)", 
+    "Latin America & Caribbean (excluding high income)",
+    "Developing economies", "Upper middle income", 
+    "Lower middle income"
+  )) %>%
+  mutate(
+    iso3 = countrycode::countrycode(country, "country.name", "iso3c")
+  )
 
-# Merge par la colonne country / Country.Name
-merged_empowermentWGI <- merge(Empowerment, WGI_cleaned,
-                     by.x = "country", by.y = "Country.Name",
-                     all.x = TRUE)
+Empowerment_merge <- Empowerment %>%
+  filter(!iso3 %in% c(NA, ""))  # on garde les lignes avec iso3
+
+```
+```{r}
+# Merge Empowerment + Findex
+Emp_Findex <- Empowerment_merge %>%
+  left_join(Findex_merge, by = c("iso3"))
 ```
 
 
