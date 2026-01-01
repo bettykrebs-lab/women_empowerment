@@ -2,6 +2,13 @@
 title: "Description"
 author: "Betty Krebs & Marilys Guiban"
 format: html
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: cosmo
+    highlight: tango
+    code_folding: show
 ---
 
 ##Github We worked in the following github repositery https://github.com/bettykrebs-lab/women_empowerment.git
@@ -25,6 +32,8 @@ These variables are critical to understanding women's access to financial resour
 
 The WGI dataset offers a measure of institutional quality across multiple dimensions such as political stability, rule of la, regulatory quality and voice and accountability.
 These indicators allow us to assess the institutional context in where financial systems operate.
+
+The Empowerment dataset. 
 
 To provide a more nuanced analysis, we will do distinctions between countries to see how cultural and legal frameworks often influence women's access to financial resources and participation in economic activity.
 We will certainly at a point of our analysis do a distinction between : Muslim / non Muslim countries, countries with strong / weak institutions, countries with important regulatory / with less legal framework.
@@ -54,7 +63,7 @@ Empowerment <- vroom(here("dataproject", "women_inequalities.csv"))
 
 ### Short description of the source
 
-This dataset also comes from the World Health Organization, which issues the
+This dataset comes from the World Health Organization, which issues the
 survey-based women's empowerment index (SWPER). This index was first tested in Africa in 2017 and was then extended to the rest of the world. It is the first index in the gender domain to propose an individual-level comparison between a large number of countries and over time. 
 
 From this survey are drawn 9 indicators,  distributed across 3 domains : 
@@ -131,7 +140,7 @@ The data also identify gaps in access to and use of digital and financial servic
 The survey results reflect a snapshot in time based on questions that respondents answered about their habits and experiences during the 12 months preceding the survey.
 Comparing results from the current survey with those from the 2011, 2014, 2017, and 2021 surveys reveals which trends endure, expand, and grow over time.
 
-*How to download this dataset ?* : https://databank.worldbank.org/source/global-findex-database# To download the dataset, we initially selected all the variables on the website of the World bank for the country and series category.
+*How to download this dataset ?* : https://databank.worldbank.org/source/global-findex-database To download the dataset, we initially selected all the variables on the website of the World bank for the country and series category.
 We selected the year 2024 for the dataset in order to provide the most recent data.
 
 ### Data cleaning
@@ -280,36 +289,38 @@ top15_colonnes
 With pivot wider, we are sorting the data and dividing our column Series Name in different columns for each variable that is studied.
 The dataset named WGI_wide is the final dataset that we will use for our project.
 
-
 ```{r}
-library(tidyr)
-
-names(WGI) <- make.names(names(WGI), unique = TRUE)
-dput(colnames(WGI))  # voir nouveaux noms
-
-
-cols_annees <- grep("^X[0-9]{4}", colnames(WGI), value = TRUE)
-cols_annees
 library(dplyr)
-library(tidyr)
+### Data cleaning
 
+# 1. Nettoyage des noms de colonnes pour éviter les caractères spéciaux
+names(WGI) <- make.names(names(WGI), unique = TRUE)
+
+# 2. Identification des colonnes d'années (qui commencent par X....)
+cols_annees <- grep("^X[0-9]{4}", colnames(WGI), value = TRUE)
+
+# 3. Création de WGI_long (L'étape qui manquait !)
 WGI_long <- WGI %>%
   pivot_longer(
-    cols = c(all_of(cols_annees), growth.rate),   # années + growth.rate
+    cols = all_of(cols_annees),
     names_to = "Annee",
     values_to = "Valeur"
-  )
-
-WGI_long <- WGI_long %>%
-  mutate(Annee = gsub("X([0-9]{4}).*", "\\1", Annee))
+  ) %>%
+  # Nettoyage du format de l'année (ex: X1996..YR1996. devient 1996)
+  mutate(Annee = substr(Annee, 2, 5)) %>%
+  # On remplace les ".." (code de la Banque Mondiale pour NA) par de vrais NA
+  # Et on s'assure que la valeur est numérique (en remplaçant la virgule par un point)
+  mutate(Valeur = as.numeric(gsub(",", ".", na_if(Valeur, "..")))) %>%
+  # On retire les lignes où la valeur est manquante pour alléger le dataset
+  filter(!is.na(Valeur))
 
 WGI_wide <- WGI_long %>%
   pivot_wider(
     id_cols = c(Country.Name, Country.Code, Annee),
     names_from = Series.Name,
-    values_from = Valeur
+    values_from = Valeur,
+    values_fn = list  # met les valeurs dans une liste
   )
-
 ```
 
 
@@ -373,67 +384,87 @@ variable_table <- tibble(
 )
 
 kable(variable_table, caption = "Tableau 2 : Liste des variables du dataset WGI_cleaned")
+
+
 ```
 
 
 ## Description of the data joining 
 
+Firstly we will join Empowerment and Findexclean. 
 ```{r}
-library(dplyr)
-library(countrycode)
+# --- FUSION DES DATASETS EMPOWERMENT ET FINDEXCLEAN ---
+library(stringr)
 
-# Vérifier tous les "pays" uniques
-unique(Findexclean$country)
-
-# Filtrer pour garder uniquement les vrais pays
-Findex_clean_countries <- Findexclean %>%
-  filter(!country %in% c(
-    "World", "High income", "Low income", "Middle East & North Africa (excluding high income)",
-    "Sub-Saharan Africa (excluding high income)", "Europe & Central Asia (excluding high income)",
-    "East Asia & Pacific (excluding high income)", "Latin America & Caribbean (excluding high income)",
-    "Developing economies", "Upper middle income", "Lower middle income"
-  ))
-
-Findex_clean_countries <- Findex_clean_countries %>%
-  mutate(iso3 = countrycode(
-    sourcevar = country,
-    origin = "country.name",
-    destination = "iso3c"
-  ))
-
-# Vérifier
-head(Findex_clean_countries[, c("country", "iso3")])
-
-```
-```{r}
-library(dplyr)
-
-Findex_merge <- Findexclean %>%
-  filter(!country %in% c(
-    "World", "High income", "Low income", 
-    "Middle East & North Africa (excluding high income)",
-    "Sub-Saharan Africa (excluding high income)", 
-    "Europe & Central Asia (excluding high income)",
-    "East Asia & Pacific (excluding high income)", 
-    "Latin America & Caribbean (excluding high income)",
-    "Developing economies", "Upper middle income", 
-    "Lower middle income"
-  )) %>%
+# 1. Préparation de Empowerment pour la jointure
+# On harmonise les noms des colonnes clés (pays, code, année)
+emp_to_merge <- Empowerment %>%
+  rename(
+    country_emp = setting,    # On garde une trace du nom original
+    year = date,
+    codecountry = iso3
+  ) %>%
   mutate(
-    iso3 = countrycode::countrycode(country, "country.name", "iso3c")
+    year = as.numeric(year),
+    codecountry = str_trim(codecountry)
   )
 
-Empowerment_merge <- Empowerment %>%
-  filter(!iso3 %in% c(NA, ""))  # on garde les lignes avec iso3
+# 2. Préparation de Findexclean 
+# Vos colonnes Findex sont actuellement des caractères (ex: "17%"). 
+# On les convertit en nombres pour permettre les analyses de corrélation.
+findex_to_merge <- Findexclean %>%
+  mutate(
+    year = as.numeric(year),
+    codecountry = str_trim(codecountry),
+    across(
+      c(borrow_family_friends, digital_payment, save_bank_account, 
+        borrow_start_business, has_bank_account),
+      ~ as.numeric(str_remove(., "%")) / 100
+    )
+  )
 
+# 3. La Jointure (Left Join)
+# On utilise codecountry et year car ce sont les identifiants les plus fiables.
+# On utilise left_join pour conserver toutes les lignes détaillées d'Empowerment.
+Empowerment_Findex <- emp_to_merge %>%
+  left_join(findex_to_merge, by = c("codecountry", "year")) %>%
+  # On nettoie la colonne country pour éviter les doublons .x et .y
+  mutate(country = coalesce(country, country_emp)) %>%
+  select(-country_emp) %>%
+  relocate(country, codecountry, year)
+
+# 4. Vérification du résultat
+kable(head(Empowerment_Findex), caption = "Aperçu du dataset fusionné (Empowerment + Findex)")
 ```
+
 ```{r}
-# Merge Empowerment + Findex
-Emp_Findex <- Empowerment_merge %>%
-  left_join(Findex_merge, by = c("iso3"))
+# 1. On nettoie WGI_cleaned de ses lignes non-numériques
+WGI_to_merge <- WGI_cleaned %>%
+  # On garde uniquement les lignes où l'année ressemble à un chiffre
+  # (Cela supprime les notes de bas de page s'il y en a)
+  filter(grepl("^[0-9]+$", Annee)) %>%
+  mutate(
+    Annee = as.numeric(Annee),
+    # On s'occupe aussi des virgules pour les colonnes de scores
+    across(where(is.character) & contains(c("Estimate", "Rank")), 
+           ~ as.numeric(gsub(",", ".", .)))
+  )
+
+# 2. Maintenant on fait la fusion
+Final_Dataset <- Empowerment_Findex %>%
+  left_join(WGI_to_merge, by = c("codecountry" = "Country.Code", "year" = "Annee")) %>%
+  mutate(country = coalesce(country, Country.Name)) %>%
+  select(-Country.Name) %>%
+  relocate(country, codecountry, year)
 ```
 
-
+```{r}
+# Sauvegarde en format RDS
+saveRDS(Empowerment, "Empowerment_clean.rds")
+saveRDS(Findexclean, "Findexclean.rds")
+saveRDS(WGI_cleaned, "WGI_cleaned.rds")
+saveRDS(Final_Dataset, "Final_Dataset.rds")
+```
 
 
 
