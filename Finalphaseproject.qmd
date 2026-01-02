@@ -17,8 +17,8 @@ library(ggplot2)
 library(dplyr)
 library(vroom)
 library(tidyr)
-library(openxlsx)
 library(knitr)
+library(stringr)
 ```
 
 ## Research question presentation
@@ -76,7 +76,8 @@ relationship between governance quality, financial inclusion and women's
 empowerment. The clean datasets allow us to focus on the most relevant
 variables.
 
-In our analysis we will focus on the most recent data and give historical analysis with previous litterature made on this question. 
+In our analysis we will focus on the most recent data and give
+historical analysis with previous litterature made on this question.
 
 Pour répondre à cette question de recherche nous allons : 1° analyse
 géographique comparative des pays par groupes de revenus et de
@@ -107,8 +108,9 @@ individual-level comparison between a large number of countries and over
 time.
 
 From this survey are drawn 9 indicators, distributed across 3 domains
-: - *Social Independence Domain* - *Decision-Making Domain* - *Violence
-Domain*
+
+:   -   *Social Independence Domain* - *Decision-Making Domain* -
+        *Violence Domain*
 
 ### Findex (cleaned dataset)
 
@@ -191,7 +193,11 @@ analysis.
 final_dataset <- readRDS(here("datafinalproject", "Final_Dataset.rds"))
 ```
 
-To improve analytical precision, the final_recent dataset was restricted to 2023 empowerment values. This minimizes the time gap with the 2024 WGI and Findex data, ensuring that the relationship between governance and empowerment is based on nearly contemporaneous observations.
+To improve analytical precision, the final_recent dataset was restricted
+to 2023 empowerment values. This minimizes the time gap with the 2024
+WGI and Findex data, ensuring that the relationship between governance
+and empowerment is based on nearly contemporaneous observations.
+
 ```{r}
 extract_value <- function(x) {
   if (is.list(x) && length(x) > 0) {
@@ -213,7 +219,6 @@ final_cleaned_all <- final_dataset %>%
     wbincome2024 != "High income"
   ) %>%
   mutate(
-    # Application de ta fonction aux 3 colonnes WGI
     political_stability = sapply(`Political Stability and Absence of Violence/Terrorism: Percentile Rank`, extract_value),
     voice_accountability = sapply(`Voice and Accountability: Percentile Rank`, extract_value),
     rule_of_law = sapply(`Rule of Law: Percentile Rank`, extract_value),
@@ -237,14 +242,52 @@ significant in women's empowerment. We decided not to analyse high
 income countries since our research question explores development issues
 and also due to a lack of data.
 
+### Temporal analysis : how women's empowerment has evolved these past years ?
+
+```{r}
+final_cleaned_all %>%
+  mutate(domaine = str_remove_all(indicator_name, "Women with high empowerment in the | domain \\(%\\)")) %>%
+  filter(!is.na(wbincome2024), wbincome2024 != "High income") %>%
+  group_by(year, wbincome2024, domaine) %>% 
+  summarise(mean_emp = mean(estimate, na.rm = TRUE), .groups = "drop") %>%
+  ggplot(aes(x = year, y = mean_emp, color = wbincome2024, group = wbincome2024)) +
+  # na.rm = TRUE retire le warning, alpha = 0.6 éclaircit le trait
+  geom_line(size = 0.8, alpha = 0.6, na.rm = TRUE, data = . %>% filter(!is.na(mean_emp))) + 
+  # na.rm = TRUE retire le warning ici aussi
+  geom_point(size = 1.5, na.rm = TRUE) + 
+  facet_wrap(~domaine) +
+  labs(
+    title = "Historical Evolution of Women's Empowerment (2010-2023)",
+    subtitle = "Trends by World Bank Income Group",
+    x = "Year", 
+    y = "Average Score (%)",
+    color = "Income Group"
+  ) +
+  theme_minimal() +
+  theme(
+    legend.position = "bottom",
+    panel.grid.minor = element_blank() # Nettoie le fond pour plus de clarté
+  )
+```
+
+The historical data (1999-2023) reveals a overall upward trend in
+women's empowerment, particularly in the Attitude to Violence and
+Decision-Making domains across all income groups. However, this progress
+is characterized by significant volatility, suggesting that empowerment
+is not a linear process but one sensitive to periodic socio-economic
+shocks. Notably, the Social Independence domain shows a concerning
+stagnation, or even a slight decline in some Upper-Middle and Low-Income
+contexts, indicating that physical mobility and financial autonomy
+remain the most difficult barriers to break, despite improvements in
+other areas
+
 ### Analysis of empowerment by income group
 
 ```{r}
-final_recent %>%
-  # On enlève les lignes où l'un des deux est vide
-  filter(!is.na(estimate), !is.na(wbincome2024), wbincome2024 != "High income") %>% 
-  group_by(wbincome2024, country) %>% 
-  summarise(score_empowerment = mean(estimate, na.rm = TRUE), .groups = "drop") %>%
+final_recent |>
+  filter(!is.na(estimate), !is.na(wbincome2024), wbincome2024 != "High income") |> 
+  group_by(wbincome2024, country) |> 
+  summarise(score_empowerment = mean(estimate, na.rm = TRUE), .groups = "drop") |>
   ggplot(aes(x = wbincome2024, y = score_empowerment, fill = wbincome2024)) +
   geom_boxplot() + 
   labs(
@@ -254,26 +297,35 @@ final_recent %>%
   ) +
   theme_minimal()
 ```
-The distribution of empowerment scores reveals a significant shift across income groups. While Low-Income countries struggle with high inequality and low averages, Lower-Middle-Income nations show a consolidated progress with more homogeneous and higher scores. In contrast, Upper-Middle-Income countries exhibit a dual reality: despite a higher ceiling of empowerment, the low positioning of the mean within a tall box suggests persistent internal disparities, where a large segment of the female population has yet to catch up with the top achievers.
+
+The distribution of empowerment scores reveals a significant shift
+across income groups. While Low-Income countries struggle with high
+inequality and low averages, Lower-Middle-Income nations show a
+consolidated progress with more homogeneous and higher scores. In
+contrast, Upper-Middle-Income countries exhibit a dual reality: despite
+a higher ceiling of empowerment, the low positioning of the mean within
+a tall box suggests persistent internal disparities, where a large
+segment of the female population has yet to catch up with the top
+achievers.
 
 Let's analyse this deeper by focusing on social domain and decision
 making domain by countries :
 
 ```{r}
-#| warning: false
-#| message: false
-
 final_recent |>
   filter(indicator_name %in% c(
     "Women with high empowerment in the attitude to violence domain (%)",
     "Women with high empowerment in the decision-making domain (%)",
     "Women with high empowerment in the social independence domain (%)"
   ), wbincome2024 != "High income") |>
+  # On ajoute un filtre de sécurité pour les scores vides
+  filter(!is.na(estimate)) |> 
   group_by(country, wbincome2024, indicator_name) |>
   summarise(score_moyen = mean(estimate, na.rm = TRUE), .groups = "drop") |>
   mutate(domaine = str_remove_all(indicator_name, "Women with high empowerment in the | domain \\(%\\)")) |>
   ggplot(aes(x = wbincome2024, y = score_moyen, fill = wbincome2024)) +
-  geom_boxplot(outlier.shape = NA, alpha = 0.7) +
+  # na.rm = TRUE supprime le warning des lignes supprimées
+  geom_boxplot(outlier.shape = NA, alpha = 0.7, na.rm = TRUE) +
   facet_wrap(~domaine, scales = "free_y") +
   labs(
     title = "Empowerment Dimensions by Income Group",
@@ -288,11 +340,25 @@ final_recent |>
   )
 ```
 
-When disaggregating the data by income group, it is evident that
-Upper-Middle-Income countries consistently exhibit a higher proportion
-of empowered women across all three domains—Social, Decision-Making, and
-Attitude toward Violence—compared to both Lower-Middle and Low-Income
-countries.
+A cross-sectional analysis by income group reveals heterogenous patterns
+across the three empowerment domains. In the Attitude toward Violence
+domain, a clear positive correlation with national wealth is observed as
+the median score rises from 52% in Low-Income countries to 75% in
+Upper-Middle-Income contexts. However, the widening of the interquartile
+range in wealthier groups suggests that economic growth alone does not
+harmonize social norms.
+
+In contrast, the Decision-Making domain shows extreme volatility within
+the Low-Income group, with scores ranging from 23% to 63%. This
+'long-box' phenomenon indicates that domestic authority can reach high
+levels even in resource-constrained environments, likely driven by
+specific institutional or cultural factors. Finally, Social Independence
+appears to be the most rigid dimension, characterized by lower overall
+scores and narrower distributions. The transition from a 23% median in
+Low-Income countries to only 60% in Upper-Middle countries confirms that
+physical and financial autonomy faces a 'structural ceiling' that is
+significantly more resistant to economic development than other
+dimensions of empowerment.
 
 ### Analysis of empowerment by the quality of institutions
 
@@ -302,19 +368,10 @@ a correlation between empowerment and the quality of institutions.
 *Political stability and women empowerment*
 
 ```{r}
-# Diagnostic de la colonne
-class(final_dataset$`Political Stability and Absence of Violence/Terrorism: Percentile Rank`)
-head(final_dataset$`Political Stability and Absence of Violence/Terrorism: Percentile Rank`, 3)
-```
-
-
-*Political stability and women empowerment*
-
-```{r}
-final_recent %>%
-  group_by(country, wbincome2024, domaine, political_stability) %>%
-  summarise(score_moyen = mean(estimate, na.rm = TRUE), .groups = "drop") %>%
-  filter(!is.na(political_stability), !is.na(score_moyen)) %>%
+final_recent |>
+  group_by(country, wbincome2024, domaine, political_stability) |>
+  summarise(score_moyen = mean(estimate, na.rm = TRUE), .groups = "drop") |>
+  filter(!is.na(political_stability), !is.na(score_moyen)) |>
   ggplot(aes(x = political_stability, y = score_moyen, color = wbincome2024)) +
   geom_point(alpha = 0.4, size = 1) +
   geom_smooth(method = "lm", se = FALSE, linewidth = 1.2) + 
@@ -335,6 +392,7 @@ final_recent %>%
     panel.spacing = unit(1, "lines")
   )
 ```
+
 The divergent trends across income groups suggest that the relationship
 between political stability and empowerment is not linear but
 context-dependent. While stability is a fundamental prerequisite for
@@ -350,7 +408,7 @@ management.
 *Voice and accountability and Women empowerment*
 
 ```{r}
-final_recent %>%
+final_recent |>
   group_by(country, wbincome2024, domaine, voice_accountability) |>
   summarise(score_moyen = mean(estimate, na.rm = TRUE), .groups = "drop") |>
   filter(!is.na(voice_accountability), !is.na(score_moyen)) |>
@@ -360,14 +418,20 @@ final_recent %>%
   facet_wrap(~domaine, ncol = 3) +
   scale_color_brewer(palette = "Set1") +
   labs(
-    title = "Voice and Accountability vs Women's Empowerment",
+    title = "Correlation between Voice and Accountability and Women's Empowerment",
     x = "Voice & Accountability (Percentile Rank)",
     y = "Average Empowerment Score (%)",
     color = "Income Group"
   ) +
   theme_minimal()
 ```
-Voice and Accountability shows a positive correlation with reduced violence across most groups, yet reveals a striking divergence in autonomy: while Upper-Middle-Income countries see gains across all domains, Low and Lower-Middle-Income nations experience a 'participation paradox' where increased political voice coincides with a decline in domestic decision-making and social independence.
+
+Voice and Accountability shows a positive correlation with reduced
+violence across most groups, yet reveals a striking divergence in
+autonomy: while Upper-Middle-Income countries see gains across all
+domains, Low and Lower-Middle-Income nations experience a 'participation
+paradox' where increased political voice coincides with a decline in
+domestic decision-making and social independence.
 
 *Rule of law and women empowerment*
 
@@ -382,7 +446,7 @@ final_recent |>
   facet_wrap(~domaine, ncol = 3) +
   scale_color_brewer(palette = "Set1") +
   labs(
-    title = "Rule of Law vs. Women's Empowerment",
+    title = "Correlation between rule of law and Women's Empowerment",
     subtitle = "Analysis of legal frameworks across income groups",
     x = "Rule of Law (Percentile Rank)",
     y = "Average Empowerment Score (%)",
@@ -396,9 +460,17 @@ final_recent |>
     panel.spacing = unit(1, "lines")
   )
 ```
-Rule of Law acts as a universal driver for social independence and attitudes against violence across all income groups; however, it fails to penetrate the domestic sphere in lower-income economies, where decision-making power continues to decline despite strengthening legal frameworks.
+
+Rule of Law acts as a universal driver for social independence and
+attitudes against violence across all income groups; however, it fails
+to penetrate the domestic sphere in lower-income economies, where
+decision-making power continues to decline despite strengthening legal
+frameworks.
 
 ### Analysis of empowerment by development of financing systems
+
+*Digital payments*
+
 ```{r}
 final_recent |>
   filter(
@@ -433,8 +505,16 @@ final_recent |>
   theme_minimal() +
   theme(legend.position = "bottom", panel.grid.minor = element_blank())
 ```
-The data on digital financial inclusion reveals a complex landscape: while it serves as a catalyst for changing attitudes toward violence in Lower-Middle-Income countries, it shows a global negative correlation with decision-making and social independence, suggesting that digital tools alone—potentially due to data scarcity or the 'digital divide'—have yet to translate into broader structural autonomy for women in developing economies.
 
+The data on digital financial inclusion reveals a complex landscape:
+while it serves as a catalyst for changing attitudes toward violence in
+Lower-Middle-Income countries, it shows a global negative correlation
+with decision-making and social independence, suggesting that digital
+tools alone—potentially due to data scarcity or the 'digital
+divide'—have yet to translate into broader structural autonomy for women
+in developing economies.
+
+*Does having a bank account is correlated with women ewmpowerment ?*
 
 ```{r}
 final_recent |>
@@ -467,7 +547,16 @@ final_recent |>
   theme_minimal() +
   theme(legend.position = "bottom", panel.grid.minor = element_blank())
 ```
-Analysis of formal bank account ownership reveals a transitional stage: while it fosters social independence and decision-making power in Lower-Middle-Income countries, it shows a slight negative correlation with attitudes toward violence globally and a decline in decision-making for Upper-Middle-Income groups, potentially reflecting a shift where basic banking is no longer a sufficient lever for empowerment in more advanced economies.
+
+Analysis of formal bank account ownership reveals a transitional stage:
+while it fosters social independence and decision-making power in
+Lower-Middle-Income countries, it shows a slight negative correlation
+with attitudes toward violence globally and a decline in decision-making
+for Upper-Middle-Income groups, potentially reflecting a shift where
+basic banking is no longer a sufficient lever for empowerment in more
+advanced economies.
+
+*Ability to borrow to bank to start a business*
 
 ```{r}
 final_cleaned_all |>
@@ -500,8 +589,13 @@ final_cleaned_all |>
   theme_minimal() +
   theme(legend.position = "bottom", panel.grid.minor = element_blank())
 ```
-The data analysis reveals that while borrowing to bank to start a business correlate with increased social independence in Lower-Middle-Income countries, they show a global decline in decision-making power and attitudes toward violence, suggesting that digital financial tools may increase women's mobility without yet shifting deep-seated domestic power dynamics or social norms.
 
+The data analysis reveals that while borrowing to bank to start a
+business correlate with increased social independence in
+Lower-Middle-Income countries, they show a global decline in
+decision-making power and attitudes toward violence, suggesting that
+digital financial tools may increase women's mobility without yet
+shifting deep-seated domestic power dynamics or social norms.
 
 ```{r}
 final_recent |>
@@ -534,7 +628,31 @@ final_recent |>
   theme_minimal() +
   theme(legend.position = "bottom", panel.grid.minor = element_blank())
 ```
-The analysis of formal savings shows that while it correlates with increased attitudes against violence in Lower-Middle-Income countries, it appears decoupled from broader empowerment; in fact, formal savings coincide with a decline in decision-making and social independence across most groups, suggesting that saving may be a protective financial strategy rather than a tool for immediate domestic or social autonomy.
 
+The analysis of formal savings shows that while it correlates with
+increased attitudes against violence in Lower-Middle-Income countries,
+it appears decoupled from broader empowerment; in fact, formal savings
+coincide with a decline in decision-making and social independence
+across most groups, suggesting that saving may be a protective financial
+strategy rather than a tool for immediate domestic or social autonomy.
 
+Limits of our analysis : we can observe that there is a lack of data on
+low income country it could be due to
 
+## Econometric regression with scatter plots
+
+## Diagnosis tests
+
+-   test de robustesse à faire en distinguant les aires géographiques
+    des pays en développement Afrique, Moyen orient, Amérique latine (à
+    voir les variables dans le devoir)
+-   à tuliser des variables de contrôle
+-   si on réalise des régressions linéraires bine souligner les limites
+    de ce travail de recherche et éventuellement utiliser le PPML
+-   regarder de la littérature pour voir si l'émancipation des femmes ne
+    serait par influencer par des parternaires commerciaux Important
+    ajouter des tables de régressions, ajouter de la littérature
+    scientifique sur le sujet pour éclairer nos résultats (notamment en
+    ajoutant un background temporel)
+
+## Conclusion
