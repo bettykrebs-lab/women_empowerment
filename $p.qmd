@@ -1,0 +1,471 @@
+---
+title: "Description"
+author: "Betty Krebs & Marilys Guiban"
+format: html
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: cosmo
+    highlight: tango
+    code_folding: show
+---
+
+##Github We worked in the following github repositery https://github.com/bettykrebs-lab/women_empowerment.git
+
+## Description of our research question
+
+Research question : Do the quality of institutions and the development of institutional financing systems enable women to empower themselves in the social and decision-making domains ?
+
+The aim of our research question is to understand whether countries with higher-governance and more developed financial inclusion infrastructures provide better opportunities for women to participate in economic, social and decision-making activities.
+By combining multiple datasets, our study integrates information on financial behavior, governance indicators and women's empowerment to explore this relationship in a comprehensive manner.
+
+Dependent variables : women empowerment in the social domain and in the decision making domain
+
+Explanatory variables : From the Findex dataset : borrowing from family and friends (borrow_family_friends), using digital payments (digital_payment), saving in a bank account (save_bank_account), borrowing to start a business (borrow_start_business), and having a bank account (has_bank_account)
+
+From the Worldwide governance index : Voice and Accountability: Estimate and Voice and Accountability: Percentile Rank, Rule of Law: Estimate and Rule of Law: Percentile Rank, and Political Stability and Absence of Violence/Terrorism: Estimate and Political Stability and Absence of Violence/Terrorism: Percentile Rank
+
+Our analysis relies primarily on three datasets.
+First the Global Findex Database 2025, which privides demand-side data on financial inclusion, including indicators such as account ownership, saving behaviour, borrowing formal and informal sources and use of digital financial services.
+These variables are critical to understanding women's access to financial resources and their ability to manage risk and participate in economic activity.
+
+The WGI dataset offers a measure of institutional quality across multiple dimensions such as political stability, rule of la, regulatory quality and voice and accountability.
+These indicators allow us to assess the institutional context in where financial systems operate.
+
+The Empowerment dataset. 
+
+To provide a more nuanced analysis, we will do distinctions between countries to see how cultural and legal frameworks often influence women's access to financial resources and participation in economic activity.
+We will certainly at a point of our analysis do a distinction between : Muslim / non Muslim countries, countries with strong / weak institutions, countries with important regulatory / with less legal framework.
+
+In term of methodology our project will combine descriptive statistics, correlation analysis and regression models.
+The goal is to assess the relationship between governance quality, financial inclusion and women's empowerment.
+The clean datasets allow us to focus on the most relevant variables.
+
+
+##Initialisation
+
+```{r}
+library(here)
+library(ggplot2)
+library(dplyr)
+library(vroom)
+library(tidyr)
+library(openxlsx)
+library(knitr)
+```
+
+```{r}
+Empowerment <- vroom(here("dataproject", "women_inequalities.csv"))
+```
+
+## Dataset Empowerment 
+
+### Short description of the source
+
+This dataset comes from the World Health Organization, which issues the
+survey-based women's empowerment index (SWPER). This index was first tested in Africa in 2017 and was then extended to the rest of the world. It is the first index in the gender domain to propose an individual-level comparison between a large number of countries and over time. 
+
+From this survey are drawn 9 indicators,  distributed across 3 domains : 
+
+- *Social Independence Domain*: This domain classifies women based on their level of empowerment within society: high, medium, or low. It includes schooling attainment, access to information, age at pivotal life events and spousal asset differentials and access to information.
+
+- *Decision-Making Domain*: This domain assesses women's empowerment in making decisions, classifying them as having high, medium, or low empowerment. This examines the extent of the woman’s participation is household decisions, which may also be considered a measure of instrumental agency.
+
+- *Violence Domain*: This domain classifies women based on their level of empowerment regarding violence, again categorized as high, medium, or low. This is closely related to the concept of intrinsic agency, as a proxy for the woman’s incorporation of gender norms-related acceptability of violence.
+
+Those 9 indicators are disaggregated by age (with two subgroups 15-19yo and 20-49yo), economic status (determined within the country by calculating quintiles and deciles of the population), education (highest level of education reached by the women), place of residence and subnational regions.
+
+
+## Cleaning 
+```{r}
+str(Empowerment)
+```
+
+###Table which gives basic information about the data file
+
+```{r}
+info <- function(df) {
+  data.frame(
+    file = deparse(substitute(df)),
+    row_number = nrow(df),
+    col_number = ncol(df),
+    missing_number = sum(sapply(df, function(col) sum(is.na(col)))),
+    rows_with_missing_values = sum(!complete.cases(df))
+  )
+}
+
+t_info_Empowerment <- info(Empowerment)
+```
+
+
+
+###The most important variables 
+
+Here is a short description of the most important variables in the dataset "Empowerment" : 
+
+ - iso3 : abreviation of the country in 3 capital letters
+ 
+ - indicator_name : constructed as women with high/medium/low empowerment in the social independance domain/decision-making domain/attitude to violence
+ 
+ - subgroups : regroups 3 age categories, 10 deciles and 5 quintiles. Transformed into integers with the variable reference_subgroup
+ 
+ - whoreg6 : subnational region
+ 
+ - wbincome2024 : income of the country in 2024
+
+
+## Dataset Findex
+
+### Description of the dataset and the sources
+
+```{r}
+Findex <- vroom(here("dataproject", "GlobalFindexDatabase2025.csv"))
+```
+
+### Dataset Findex
+
+The Global Findex Database is the world's only demand-side survey on financial inclusion and a leading source of data on how adults around the world access and use financial services.
+
+Since its launch in 2011, the Global Findex has provided critical insights into financial inclusion, digital payments, savings, and borrowing behaviors across various economies.
+The database highlights key trends such as the rise of digital financial services and the gender gap in account ownership.
+
+The Global Findex 2025 introduces the Digital Connectivity Tracker, a new component that measures access to and use of mobile technology.
+Combined with financial inclusion data, it offers a holistic view of how mobile infrastructure is expanding access to financial services and improving economic resilience.
+
+*Methodology* : This dataset is produced by the world bank every four years.
+The 2025 version, based on nationally representative surveys of about 145,000 adults in 141 economies and conducted over the calendar year 2024, includes updated indicators on access and use of formal and informal financial services to save, borrow, make payments, and manage financial risk, as well as globally comparable data on ownership of mobile phones, internet use, and digital safety.
+The data also identify gaps in access to and use of digital and financial services by women and poor adults.
+
+The survey results reflect a snapshot in time based on questions that respondents answered about their habits and experiences during the 12 months preceding the survey.
+Comparing results from the current survey with those from the 2011, 2014, 2017, and 2021 surveys reveals which trends endure, expand, and grow over time.
+
+*How to download this dataset ?* : https://databank.worldbank.org/source/global-findex-database To download the dataset, we initially selected all the variables on the website of the World bank for the country and series category.
+We selected the year 2024 for the dataset in order to provide the most recent data.
+
+### Data cleaning
+
+First we suppress the first line of our dataset since it is giving confusing informations.
+In order to do this we compute this code :
+
+```{r}
+Findex <- Findex[-1, ]
+```
+
+Since there are a lot of different values, we are first calculating which are the 20 columns with the lowest number of missing values.
+
+
+```{r}
+na_count <- colSums(is.na(Findex))
+na_count_sorted <- sort(na_count)
+top15_colonnes <- names(na_count_sorted)[1:20]
+top15_colonnes
+```
+
+
+### Description of the variables
+
+For our project we are keeping the variables : 
+- "has_bank_account" : The percentage of respondents who report being employed in the private sector and receiving any money from their employer in the past year in the form of a salary or wages for doing work, and who received that money directly into a bank or similar financial institution account
+
+-   "borrow_start_business" : The percentage of respondents who report borrowing any money to start or operate a business in the past year.
+
+-   "save_bank_account" : The percentage of respondents who report saving or setting aside any money at a bank or similar financial institution or using a mobile money account to save in the past year.
+
+-   "digital payment" : The percentage of respondents who report using mobile money, a debit or credit card, or a mobile phone to make a payment from an account--or report using the internet to pay bills or to buy something online or in a store--in the past year.
+    This includes respondents who report paying bills, sending or receiving remittances, receiving payments for agricultural products, receiving government transfers, receiving wages, or receiving a public sector pension directly from or into a bank or similar financial institution account or through a mobile money account in the past year.
+
+-   "borrow family_friends" : The percentage of respondents who report borrowing any money from family, relatives, or friends in the past year
+
+With this code we are renaming and keeping only the values we are going to study in our project :
+
+```{r}
+Findexclean <- Findex %>%
+  rename(
+    borrow_family_friends     = fin22b,
+    digital_payment           = g20.any,
+    save_bank_account         = fin17a.17a1.d,
+    borrow_start_business     = fin22e,
+    has_bank_account          = fin2.t.d,
+    country = countrynewwb, 
+    codecountry = codewb
+  ) |> 
+  select(
+    country,
+    codecountry,
+    year,
+    borrow_family_friends,
+    digital_payment,
+    save_bank_account,
+    borrow_start_business,
+    has_bank_account
+  )
+
+```
+
+### Tables describing the dataset
+
+Here is a table giving the basic informations about our first dataset :
+
+```{r}
+summary_info <- tibble(
+  Dataset = "Findex",
+  Rows = nrow(Findex),
+  Columns = ncol(Findex),
+  Variables = ncol(Findex)
+)
+
+kable(summary_info, caption = "Résumé du dataset Findex")
+
+
+variable_table <- tibble(
+  Index = seq_along(names(Findex)),
+  Variable = names(Findex) 
+)
+
+kable(variable_table, caption = "Liste des variables du dataset Findex")
+```
+
+Now let's do the same with our cleaned dataset Findexclean :
+
+```{r}
+# Tableau 1 : résumé très concis
+summary_info <- tibble(
+  Dataset = "Findexclean",
+  Rows = nrow(Findexclean),
+  Columns = ncol(Findexclean),
+  Variables = ncol(Findexclean)
+)
+
+kable(summary_info, caption = "Résumé du dataset Findex")
+
+
+# Tableau 2 : liste compacte des variables (1 ligne seulement)
+variable_table <- tibble(
+  Index = seq_along(names(Findexclean)),
+  Variable = names(Findexclean)  # colonne vide pour pouvoir compléter proprement
+)
+
+kable(variable_table, caption = "Liste des variables du dataset Findex")
+```
+
+## Dataset Worldwide Government index
+
+```{r}
+WGI <- vroom(here("dataproject", "WGI.csv"))
+```
+
+
+### Description of the dataset
+
+The worldwide governance indicators (WGI) measure governance in over 200 countries and territories from 1996 to 2023.
+Governance is defined as the traditions and institutions through which authority is exercised, including how governments are selected, monitored and replaced.
+
+The WGI covers six dimensions : 1° voice and accountability 2° political stability and absence of violence or terrorism 3° government effectiveness 4° regulatory quality 5° rule of law 6° control of corruption
+
+*Methodology* : The WGI is built by the World Bank from more than 30 data sources incuding surveys of citizens and firms, NGO reports, commercial business information and assessments from public sector organizations.
+Data are from each source are rescaled to a 0-1 tange and combined using an unobserved components model which adjusts for differences across sources, weights them according to correlation and generates governance estimates with standard errors.
+All the scores are reported in standardized units and percentiles from 0 to 100.
+When the value is higher, it indicates better governance.
+
+The WGI provide a global overview of governance quality helping to identify patterns, strengths and weaknesses.
+It is supporting research in the relationship between governance, economic growth and social development.
+
+*How to download this dataset ?* : https://databank.worldbank.org/source/worldwide-governance-indicators To download the dataset, we initially selected all the variables on the website of the World bank for the country and series category.
+At first we decided to keep the data for all the years, we will now determine which year seems the most relevant for our observations.
+
+### Data cleaning
+
+Again to identify what will be interesting to look at, we verify which variables have the lowest number of missing variables.
+We will now keep the values for the years :
+
+```{r}
+na_count <- colSums(is.na(WGI))
+na_count_sorted <- sort(na_count)
+top15_colonnes <- names(na_count_sorted)[1:20]
+top15_colonnes
+```
+
+With pivot wider, we are sorting the data and dividing our column Series Name in different columns for each variable that is studied.
+The dataset named WGI_wide is the final dataset that we will use for our project.
+
+```{r}
+library(dplyr)
+### Data cleaning
+
+# 1. Nettoyage des noms de colonnes pour éviter les caractères spéciaux
+names(WGI) <- make.names(names(WGI), unique = TRUE)
+
+# 2. Identification des colonnes d'années (qui commencent par X....)
+cols_annees <- grep("^X[0-9]{4}", colnames(WGI), value = TRUE)
+
+# 3. Création de WGI_long (L'étape qui manquait !)
+WGI_long <- WGI %>%
+  pivot_longer(
+    cols = all_of(cols_annees),
+    names_to = "Annee",
+    values_to = "Valeur"
+  ) %>%
+  # Nettoyage du format de l'année (ex: X1996..YR1996. devient 1996)
+  mutate(Annee = substr(Annee, 2, 5)) %>%
+  # On remplace les ".." (code de la Banque Mondiale pour NA) par de vrais NA
+  # Et on s'assure que la valeur est numérique (en remplaçant la virgule par un point)
+  mutate(Valeur = as.numeric(gsub(",", ".", na_if(Valeur, "..")))) %>%
+  # On retire les lignes où la valeur est manquante pour alléger le dataset
+  filter(!is.na(Valeur))
+
+WGI_wide <- WGI_long %>%
+  pivot_wider(
+    id_cols = c(Country.Name, Country.Code, Annee),
+    names_from = Series.Name,
+    values_from = Valeur,
+    values_fn = list  # met les valeurs dans une liste
+  )
+```
+
+
+### Description of the variables
+
+Now let's determine which variables are the most relevant for our analysis.
+For our research question and given the past variables that we have, we are using : 
+- political stability and the absence of terrorism as an explicative variable of women empowerment It measures perceptions of the likelihood of political instability and/or politically-motivated violence, including terrorism.
+Estimate gives the country's score on the aggregate indicator, in units of a standard normal distribution, i.e. ranging from approximately -2.5 to 2.5.
+
+-   Voice and accountability : captures perceptions of the extent to which a country's citizens are able to participate in selecting their government, as well as freedom of expression, freedom of association, and a free media.
+    Estimate gives the country's score on the aggregate indicator, in units of a standard normal distribution, i.e. ranging from approximately -2.5 to 2.5.
+
+-   rule of law : Regulatory Quality captures perceptions of the ability of the government to formulate and implement sound policies and regulations that permit and promote private sector development.
+
+For each indicators we keep the estimate and the percentile value: - Estimate gives the country's score on the aggregate indicator, in units of a standard normal distribution.
+- Percentile rank indicates the country's rank among all countries covered by the aggregate indicator, with 0 corresponding to lowest rank, and 100 to highest rank.
+Percentile ranks have been adjusted to correct for changes over time in the composition of the countries covered by the WGI.
+
+In our project we will certainly focus more on the years : 1998, 2009 (to see the effect of the Subprime crisis) and 2023 for the most recent data on world government indexes.
+
+We will now compute a clean dataset for WGI, keeping only the estimate values and the percentile rank of the country in order to compare them.
+
+```{r}
+# Sélectionner uniquement les colonnes d'intérêt
+WGI_cleaned <- WGI_wide |>
+  select(
+    Country.Name,
+    Country.Code,
+    Annee,
+    `Voice and Accountability: Estimate`,
+    `Voice and Accountability: Percentile Rank`,
+    `Rule of Law: Estimate`,
+    `Rule of Law: Percentile Rank`,
+    `Political Stability and Absence of Violence/Terrorism: Estimate`,
+    `Political Stability and Absence of Violence/Terrorism: Percentile Rank`
+  )
+
+# Vérifier le résultat
+head(WGI_cleaned)
+```
+
+```{r}
+# --- 1. Vérification des 6 premières lignes du nouveau dataset ---
+# Utiliser WGI_cleaned qui vient d'être créé
+head(WGI_cleaned)
+
+# --- 2. Tableau 1 : Résumé concis des dimensions ---
+summary_info <- tibble(
+  Dataset = "WGI_cleaned",
+  Rows = nrow(WGI_cleaned),
+  Columns = ncol(WGI_cleaned)
+)
+
+kable(summary_info, caption = "Tableau 1 : Résumé du dataset WGI_cleaned")
+
+# --- 3. Tableau 2 : Liste des variables sélectionnées ---
+variable_table <- tibble(
+  Index = seq_along(names(WGI_cleaned)),
+  Variable = names(WGI_cleaned) 
+)
+
+kable(variable_table, caption = "Tableau 2 : Liste des variables du dataset WGI_cleaned")
+
+
+```
+
+
+## Description of the data joining 
+
+Firstly we will join Empowerment and Findexclean. 
+```{r}
+# --- FUSION DES DATASETS EMPOWERMENT ET FINDEXCLEAN ---
+library(stringr)
+
+# 1. Préparation de Empowerment pour la jointure
+# On harmonise les noms des colonnes clés (pays, code, année)
+emp_to_merge <- Empowerment %>%
+  rename(
+    country_emp = setting,    # On garde une trace du nom original
+    year = date,
+    codecountry = iso3
+  ) %>%
+  mutate(
+    year = as.numeric(year),
+    codecountry = str_trim(codecountry)
+  )
+
+# 2. Préparation de Findexclean 
+# Vos colonnes Findex sont actuellement des caractères (ex: "17%"). 
+# On les convertit en nombres pour permettre les analyses de corrélation.
+findex_to_merge <- Findexclean %>%
+  mutate(
+    year = as.numeric(year),
+    codecountry = str_trim(codecountry),
+    across(
+      c(borrow_family_friends, digital_payment, save_bank_account, 
+        borrow_start_business, has_bank_account),
+      ~ as.numeric(str_remove(., "%")) / 100
+    )
+  )
+
+# 3. La Jointure (Left Join)
+# On utilise codecountry et year car ce sont les identifiants les plus fiables.
+# On utilise left_join pour conserver toutes les lignes détaillées d'Empowerment.
+Empowerment_Findex <- emp_to_merge %>%
+  left_join(findex_to_merge, by = c("codecountry", "year")) %>%
+  # On nettoie la colonne country pour éviter les doublons .x et .y
+  mutate(country = coalesce(country, country_emp)) %>%
+  select(-country_emp) %>%
+  relocate(country, codecountry, year)
+
+# 4. Vérification du résultat
+kable(head(Empowerment_Findex), caption = "Aperçu du dataset fusionné (Empowerment + Findex)")
+```
+
+```{r}
+# 1. On nettoie WGI_cleaned de ses lignes non-numériques
+WGI_to_merge <- WGI_cleaned %>%
+  # On garde uniquement les lignes où l'année ressemble à un chiffre
+  # (Cela supprime les notes de bas de page s'il y en a)
+  filter(grepl("^[0-9]+$", Annee)) %>%
+  mutate(
+    Annee = as.numeric(Annee),
+    # On s'occupe aussi des virgules pour les colonnes de scores
+    across(where(is.character) & contains(c("Estimate", "Rank")), 
+           ~ as.numeric(gsub(",", ".", .)))
+  )
+
+# 2. Maintenant on fait la fusion
+Final_Dataset <- Empowerment_Findex %>%
+  left_join(WGI_to_merge, by = c("codecountry" = "Country.Code", "year" = "Annee")) %>%
+  mutate(country = coalesce(country, Country.Name)) %>%
+  select(-Country.Name) %>%
+  relocate(country, codecountry, year)
+```
+
+```{r}
+# Sauvegarde en format RDS
+saveRDS(Empowerment, "Empowerment_clean.rds")
+saveRDS(Findexclean, "Findexclean.rds")
+saveRDS(WGI_cleaned, "WGI_cleaned.rds")
+saveRDS(Final_Dataset, "Final_Dataset.rds")
+```
+
+
+
+
