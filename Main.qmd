@@ -4,6 +4,7 @@ author: "Betty Krebs & Marilys Guiban"
 format: html
 output:
   html_document:
+    warning: false 
     toc: true
     toc_float: true
     theme: cosmo
@@ -53,6 +54,7 @@ library(vroom)
 library(tidyr)
 library(openxlsx)
 library(knitr)
+library(WDI)
 ```
 
 ```{r}
@@ -229,7 +231,6 @@ kable(variable_table, caption = "Liste des variables du dataset Findex")
 Now let's do the same with our cleaned dataset Findexclean :
 
 ```{r}
-# Tableau 1 : résumé très concis
 summary_info <- tibble(
   Dataset = "Findexclean",
   Rows = nrow(Findexclean),
@@ -239,8 +240,6 @@ summary_info <- tibble(
 
 kable(summary_info, caption = "Résumé du dataset Findex")
 
-
-# Tableau 2 : liste compacte des variables (1 ligne seulement)
 variable_table <- tibble(
   Index = seq_along(names(Findexclean)),
   Variable = names(Findexclean)  # colonne vide pour pouvoir compléter proprement
@@ -438,19 +437,14 @@ kable(head(Empowerment_Findex), caption = "Aperçu du dataset fusionné (Empower
 ```
 
 ```{r}
-# 1. On nettoie WGI_cleaned de ses lignes non-numériques
 WGI_to_merge <- WGI_cleaned %>%
-  # On garde uniquement les lignes où l'année ressemble à un chiffre
-  # (Cela supprime les notes de bas de page s'il y en a)
   filter(grepl("^[0-9]+$", Annee)) %>%
   mutate(
     Annee = as.numeric(Annee),
-    # On s'occupe aussi des virgules pour les colonnes de scores
     across(where(is.character) & contains(c("Estimate", "Rank")), 
            ~ as.numeric(gsub(",", ".", .)))
   )
 
-# 2. Maintenant on fait la fusion
 Final_Dataset <- Empowerment_Findex %>%
   left_join(WGI_to_merge, by = c("codecountry" = "Country.Code", "year" = "Annee")) %>%
   mutate(country = coalesce(country, Country.Name)) %>%
@@ -458,12 +452,69 @@ Final_Dataset <- Empowerment_Findex %>%
   relocate(country, codecountry, year)
 ```
 
+Later in our analysis we noted that we had a wrong specification with the par World Governement index in this new dataset. We decided to do some modifications to have a proper dataset. 
+We implemented a robust row-wise extraction algorithm, obtained thanks to the use of AI tools. This ensured that the Political Stability Percentile Rank was accurately mapped for each observation without data loss or misalignment. The resulting analysis provides a clean correlation between institutional stability and gender empowerment domains across low and middle-income countries.
+```{r}
+extract_value <- function(x) {
+  if (is.list(x) && length(x) > 0) {
+    return(as.numeric(x[[1]]))
+  } else if (is.numeric(x)) {
+    return(x)
+  } else {
+    return(NA)
+  }
+}
+
+final_cleaned_all <- final_dataset |>
+  filter(
+    indicator_name %in% c(
+      "Women with high empowerment in the attitude to violence domain (%)",
+      "Women with high empowerment in the decision-making domain (%)",
+      "Women with high empowerment in the social independence domain (%)"
+    ),
+    wbincome2024 != "High income"
+  ) |>
+  mutate(
+    political_stability = sapply(`Political Stability and Absence of Violence/Terrorism: Percentile Rank`, extract_value),
+    voice_accountability = sapply(`Voice and Accountability: Percentile Rank`, extract_value),
+    rule_of_law = sapply(`Rule of Law: Percentile Rank`, extract_value),
+    domaine = str_remove_all(indicator_name, "Women with high empowerment in the | domain \\(%\\)")
+  )
+
+final_recent <- final_cleaned_all |>
+  group_by(country, domaine) |>
+  filter(year == max(year)) |>
+  ungroup()
+```
+
+Later in our analysis we will need a variable GDP to lead properly our analysis, we decided to do a joining with the WDI data from the WDI package on R : 
+```{r}
+gdp_data <- WDI(indicator = "NY.GDP.PCAP.PP.CD", start = 2024, end = 2024) |>
+            rename(gdp_per_capita = NY.GDP.PCAP.PP.CD)
+```
+
+```{r}
+final_with_gdp <- final_recent |>
+  left_join(gdp_data, by = c("codecountry" = "iso3c"))
+final_with_gdp <- final_with_gdp |>
+  mutate(log_gdp = log(gdp_per_capita))
+```
+
+```{r}
+final_with_gdp <- final_with_gdp |>
+  mutate(log_gdp = log(gdp_per_capita)) |>
+  rename(region = whoreg6)
+```
+
+
 ```{r}
 # Sauvegarde en format RDS
 saveRDS(Empowerment, "Empowerment_clean.rds")
 saveRDS(Findexclean, "Findexclean.rds")
 saveRDS(WGI_cleaned, "WGI_cleaned.rds")
-saveRDS(Final_Dataset, "Final_Dataset.rds")
+saveRDS(final_cleaned_all, "Final_cleaned_all.rds")
+saveRDS(final_recent, "final_recent.rds")
+saveRDS(final_with_gdp, "final_with_gdp.rds")
 ```
 
 
