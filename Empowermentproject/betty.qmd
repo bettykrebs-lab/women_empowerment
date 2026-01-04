@@ -1,0 +1,106 @@
+---
+title: "betty"
+author: "Betty Krebs"
+format: html
+---
+
+```{r}
+here::i_am("Womenempowerment.Rproj")
+library(here)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(vroom)
+library(knitr)
+library(tibble)
+```
+
+#Initialisation : 
+Converting `mpi`from .xlsx to .csv
+```{r}
+library(readxl)
+GMPI <- read_excel("~/dm-final-project/mpi.xlsx")
+write.csv(GMPI, "C:/Users/bkreb/Documents/mpi.csv", row.names = FALSE)
+GMPI_vroom <- vroom("~/dm-final-project/mpi.csv")
+```
+
+```{r}
+Empowerment <- vroom("women_inequalities.csv")
+```
+
+##Dataset Empowerment 
+
+###Short description of the source
+
+This dataset also comes from the World Health Organization, which issues the
+survey-based women's empowerment index (SWPER). This index was first tested in Africa in 2017 and was then extended to the rest of the world. It is the first index in the gender domain to propose an individual-level comparison between a large number of countries and over time. 
+
+From this survey are drawn 9 indicators,  distributed across 3 domains : 
+
+- *Social Independence Domain*: This domain classifies women based on their level of empowerment within society: high, medium, or low. It includes schooling attainment, access to information, age at pivotal life events and spousal asset differentials and access to information.
+
+- *Decision-Making Domain*: This domain assesses women's empowerment in making decisions, classifying them as having high, medium, or low empowerment. This examines the extent of the woman’s participation is household decisions, which may also be considered a measure of instrumental agency.
+
+- *Violence Domain*: This domain classifies women based on their level of empowerment regarding violence, again categorized as high, medium, or low. This is closely related to the concept of intrinsic agency, as a proxy for the woman’s incorporation of gender norms-related acceptability of violence.
+
+Those 9 indicators are disaggregated by age (with two subgroups 15-19yo and 20-49yo), economic status (determined within the country by calculating quintiles and deciles of the population), education (highest level of education reached by the women), place of residence and subnational regions.
+
+
+## Cleaning 
+```{r}
+str(Empowerment)
+```
+
+
+###Table which gives basic information about the data file
+
+```{r}
+info <- function(df) {
+  data.frame(
+    file = deparse(substitute(df)),
+    row_number = nrow(df),
+    col_number = ncol(df),
+    missing_number = sum(sapply(df, function(col) sum(is.na(col)))),
+    rows_with_missing_values = sum(!complete.cases(df))
+  )
+}
+
+
+t_info_GMPI_vroom <- info(GMPI_vroom)
+
+t_info_Empowerment <- info(Empowerment)
+
+bind_rows(t_info_GMPI_vroom, t_info_Empowerment) |> 
+  knitr::kable() 
+```
+
+
+
+
+###The most important variables 
+
+Here is a short description of the most important variables in the dataset "Empowerment" : 
+
+ - iso3 : abreviation of the country in 3 capital letters
+ 
+ - indicator_name : constructed as women with high/medium/low empowerment in the social independance domain/decision-making domain/attitude to violence
+ 
+ - subgroups : regroups 3 age categories, 10 deciles and 5 quintiles. Transformed into integers with the variable reference_subgroup
+ 
+ - whoreg6 : subnational region
+ 
+ - wbincome2024 : income of the country in 2024
+
+##Description of the data joining and cleaning 
+
+```{r}
+Empowerment <- Empowerment |>  #renaming variables to allow for easier joining
+  rename(country = iso3)
+Findex <- Findex |>
+  rename(country = codewb)
+```
+
+
+##Description of our research question 
+
+##Graphical representation of our main target variable 
