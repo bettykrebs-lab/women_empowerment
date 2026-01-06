@@ -1,0 +1,816 @@
+---
+title: "Determinants of Women's Empowerment: A Cross-Country Analysis"
+author: "Betty Krebs & Marilys Guiban"
+format: 
+  pdf:
+    echo: false   
+    message: false
+    warning: false
+    toc: true
+    number-sections: true
+    colorlinks: true
+    geometry:
+      - margin=1in
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+*This report was generated using Quarto and RStudio. All statistical
+analyses were performed in R, and the final document was compiled into
+PDF format using the TinyTeX distribution to ensure high-quality
+typesetting of econometric tables and LaTeX formulas.*
+
+```{r}
+# install.packages("WDI")  
+# install.packages("sandwich") 
+# install.packages("lmtest")
+library(here)
+library(ggplot2)
+library(dplyr)
+library(vroom)
+library(tidyr)
+library(knitr)
+library(stringr)
+library(WDI)
+library(lmtest)
+library(sandwich)
+library(car)
+```
+
+## Research question presentation
+
+Research question : Do the quality of institutions and the development
+of institutional financing systems enable women to empower themselves in
+the social and decision-making domains ?
+
+The aim of our research question is to understand whether countries with
+higher-governance and more developed financial inclusion infrastructures
+provide better opportunities for women to participate in economic,
+social and decision-making activities. By combining multiple datasets,
+our study integrates information on financial behavior, governance
+indicators and women's empowerment to explore this relationship in a
+comprehensive manner.
+
+Dependent variables : women empowerment in the social domain and in the
+decision making domain
+
+Explanatory variables : From the Findex dataset : borrowing from family
+and friends (borrow_family_friends), using digital payments
+(digital_payment), saving in a bank account (save_bank_account),
+borrowing to start a business (borrow_start_business), and having a bank
+account (has_bank_account)
+
+From the Worldwide governance index : Voice and Accountability: Estimate
+and Voice and Accountability: Percentile Rank, Rule of Law: Estimate and
+Rule of Law: Percentile Rank, and Political Stability and Absence of
+Violence/Terrorism: Estimate and Political Stability and Absence of
+Violence/Terrorism: Percentile Rank
+
+Our analysis relies primarily on three datasets. First the Global Findex
+Database 2025, which privides demand-side data on financial inclusion,
+including indicators such as account ownership, saving behaviour,
+borrowing formal and informal sources and use of digital financial
+services. These variables are critical to understanding women's access
+to financial resources and their ability to manage risk and participate
+in economic activity.
+
+The WGI dataset offers a measure of institutional quality across
+multiple dimensions such as political stability, rule of la, regulatory
+quality and voice and accountability. These indicators allow us to
+assess the institutional context in where financial systems operate.
+
+The Empowerment dataset.
+
+To provide a more nuanced analysis, we will do distinctions between
+countries to see how cultural and legal frameworks often influence
+women's access to financial resources and participation in economic
+activity.
+
+In term of methodology our project will combine descriptive statistics,
+correlation analysis and regression models. The goal is to assess the
+relationship between governance quality, financial inclusion and women's
+empowerment. The clean datasets allow us to focus on the most relevant
+variables.
+
+In our analysis we will focus on the most recent data and give
+historical analysis with previous litterature made on this question.
+
+Pour répondre à cette question de recherche nous allons : 1° analyse
+géographique comparative des pays par groupes de revenus et de
+l'émancipation des femmes : par la réalisation de nuages de points
+L'analyse se fera par : niveau de développement économique (middle, low,
+high income countrie), par religion dominante (muslim vs non muslim en
+ajoutant un nouveau dataset), 2° analyse de la corrélation entre finance
+institutions et autonomie des femmes,
+
+3° réaliser des régressions économétriques en isolant inclusion
+financière et degré d'autonomie des femmes Les tests se composeront de
+test de significativité des coefficients et de la qualité du modèle (à
+réaliser sur plusieurs variables : 3 tests biens ciblés à choisir)
+
+## Dataset description
+
+### Empowerment
+
+```{r}
+Empowerment <- readRDS(here("datafinalproject", "Empowerment_clean.rds"))
+```
+
+This dataset comes from the World Health Organization, which issues the
+survey-based women's empowerment index (SWPER). This index was first
+tested in Africa in 2017 and was then extended to the rest of the world.
+It is the first index in the gender domain to propose an
+individual-level comparison between a large number of countries and over
+time.
+
+From this survey are drawn 9 indicators, distributed across 3 domains
+
+:   -   *Social Independence Domain* - *Decision-Making Domain* -
+        *Violence Domain*
+
+### Findex (cleaned dataset)
+
+```{r}
+Findex <- readRDS(here("datafinalproject", "Findexclean.rds"))
+```
+
+In the cleaned format of this dataset we have 8 variables : - Country,
+codecountry and year : giving informations about the observations
+
+-   "has_bank_account" : The percentage of respondents who report being
+    employed in the private sector and receiving any money from their
+    employer in the past year in the form of a salary or wages for doing
+    work, and who received that money directly into a bank or similar
+    financial institution account
+
+-   "borrow_start_business" : The percentage of respondents who report
+    borrowing any money to start or operate a business in the past year.
+
+-   "save_bank_account" : The percentage of respondents who report
+    saving or setting aside any money at a bank or similar financial
+    institution or using a mobile money account to save in the past
+    year.
+
+-   "digital payment" : The percentage of respondents who report using
+    mobile money, a debit or credit card, or a mobile phone to make a
+    payment from an account--or report using the internet to pay bills
+    or to buy something online or in a store--in the past year. This
+    includes respondents who report paying bills, sending or receiving
+    remittances, receiving payments for agricultural products, receiving
+    government transfers, receiving wages, or receiving a public sector
+    pension directly from or into a bank or similar financial
+    institution account or through a mobile money account in the past
+    year.
+
+-   "borrow family_friends" : The percentage of respondents who report
+    borrowing any money from family, relatives, or friends in the past
+    year
+
+### WGI (cleaned format)
+
+```{r}
+WGI <- readRDS(here("datafinalproject", "WGI_cleaned.rds"))
+```
+
+For our research question we are using : - political stability and the
+absence of terrorism as an explicative variable of women empowerment It
+measures perceptions of the likelihood of political instability and/or
+politically-motivated violence, including terrorism. Estimate gives the
+country's score on the aggregate indicator, in units of a standard
+normal distribution, i.e. ranging from approximately -2.5 to 2.5.
+
+-   Voice and accountability : captures perceptions of the extent to
+    which a country's citizens are able to participate in selecting
+    their government, as well as freedom of expression, freedom of
+    association, and a free media. Estimate gives the country's score on
+    the aggregate indicator, in units of a standard normal distribution,
+    i.e. ranging from approximately -2.5 to 2.5.
+
+-   rule of law : Regulatory Quality captures perceptions of the ability
+    of the government to formulate and implement sound policies and
+    regulations that permit and promote private sector development.
+
+For each indicators we keep the estimate and the percentile value: -
+Estimate gives the country's score on the aggregate indicator, in units
+of a standard normal distribution. - Percentile rank indicates the
+country's rank among all countries covered by the aggregate indicator,
+with 0 corresponding to lowest rank, and 100 to highest rank. Percentile
+ranks have been adjusted to correct for changes over time in the
+composition of the countries covered by the WGI.
+
+### Joined file
+
+The final dataset integrates all variables from the aforementioned
+sources. By using the country code and year as primary keys, we
+successfully merged the data into a single, comprehensive table for our
+analysis.
+
+```{r}
+final_cleaned_all <- readRDS(here("datafinalproject", "final_cleaned_all.rds"))
+```
+
+To improve analytical precision, the final_recent dataset was restricted
+to 2023 empowerment values. This minimizes the time gap with the 2024
+WGI and Findex data, ensuring that the relationship between governance
+and empowerment is based on nearly contemporaneous observations.
+
+```{r}
+final_recent <- readRDS(here("datafinalproject", "final_recent.rds"))
+```
+
+```{r}
+final_with_gdp <- readRDS(here("datafinalproject", "final_with_gdp.rds"))
+```
+
+
+## Graphical representations
+
+In this part we will do graphical analysis to understand what is
+significant in women's empowerment. We decided not to analyse high
+income countries since our research question explores development issues
+and also due to a lack of data.
+
+### Temporal analysis : how women's empowerment has evolved these past years ?
+
+```{r}
+final_cleaned_all |>
+  mutate(domaine = str_remove_all(indicator_name, "Women with high empowerment in the | domain \\(%\\)")) |>
+  filter(!is.na(wbincome2024), wbincome2024 != "High income") |>
+  group_by(year, wbincome2024, domaine) |> 
+  summarise(mean_emp = mean(estimate, na.rm = TRUE), .groups = "drop") |>
+  filter(!is.na(mean_emp)) |> 
+  ggplot(aes(x = year, y = mean_emp, color = wbincome2024, group = wbincome2024)) +
+  geom_line(linewidth = 0.8, alpha = 0.6) + # 'linewidth' remplace 'size' pour les lignes
+  geom_point(size = 1.5) + 
+  facet_wrap(~domaine) +
+  labs(
+    title = "Historical Evolution of Women's Empowerment (2010-2023)",
+    subtitle = "Trends by World Bank Income Group",
+    x = "Year", 
+    y = "Average Score (%)",
+    color = "Income Group"
+  ) +
+  theme_minimal() +
+  theme(
+    legend.position = "bottom",
+    panel.grid.minor = element_blank()
+  )
+```
+
+The historical data (1999-2023) reveals an overall upward trend in
+women's empowerment, particularly in the Attitude to Violence and
+Decision-Making domains across all income groups. However, this progress
+is characterized by significant volatility, suggesting that empowerment
+is not a linear process but one sensitive to periodic socio-economic
+shocks. Notably, the Social Independence domain shows a concerning
+stagnation, or even a slight decline in some Upper-Middle and Low-Income
+contexts, indicating that physical mobility and financial autonomy
+remain the most difficult barriers to break, despite improvements in
+other areas
+
+### Analysis of empowerment by income group
+
+```{r}
+final_recent |>
+  filter(!is.na(estimate), !is.na(wbincome2024), wbincome2024 != "High income") |> 
+  group_by(wbincome2024, country) |> 
+  summarise(score_empowerment = mean(estimate, na.rm = TRUE), .groups = "drop") |>
+  ggplot(aes(x = wbincome2024, y = score_empowerment, fill = wbincome2024)) +
+  geom_boxplot() + 
+  labs(
+    title = "Empowerment Dimensions by Income Group",
+    x = "Income Category",
+    y = "Average Score (%)"
+  ) +
+  theme_minimal()
+```
+
+The distribution of empowerment scores reveals a significant shift
+across income groups. While Low-Income countries struggle with high
+inequality and low averages, Lower-Middle-Income nations show a
+consolidated progress with more homogeneous and higher scores. In
+contrast, Upper-Middle-Income countries exhibit a dual reality: despite
+a higher ceiling of empowerment, the low positioning of the mean within
+a tall box suggests persistent internal disparities, where a large
+segment of the female population has yet to catch up with the top
+achievers.
+
+Let's analyse this deeper by focusing on social domain and decision
+making domain by countries :
+
+```{r}
+final_recent |>
+  filter(indicator_name %in% c(
+    "Women with high empowerment in the attitude to violence domain (%)",
+    "Women with high empowerment in the decision-making domain (%)",
+    "Women with high empowerment in the social independence domain (%)"
+  ), wbincome2024 != "High income") |>
+  # On ajoute un filtre de sécurité pour les scores vides
+  filter(!is.na(estimate)) |> 
+  group_by(country, wbincome2024, indicator_name) |>
+  summarise(score_moyen = mean(estimate, na.rm = TRUE), .groups = "drop") |>
+  mutate(domaine = str_remove_all(indicator_name, "Women with high empowerment in the | domain \\(%\\)")) |>
+  ggplot(aes(x = wbincome2024, y = score_moyen, fill = wbincome2024)) +
+  # na.rm = TRUE supprime le warning des lignes supprimées
+  geom_boxplot(outlier.shape = NA, alpha = 0.7, na.rm = TRUE) +
+  facet_wrap(~domaine, scales = "free_y") +
+  labs(
+    title = "Empowerment Dimensions by Income Group",
+    x = "Income Category",
+    y = "Average Score (%)"
+  ) +
+  theme_minimal() +
+  theme(
+    legend.position = "none",
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    strip.text = element_text(face = "bold")
+  )
+```
+
+A cross-sectional analysis by income group reveals heterogenous patterns
+across the three empowerment domains. In the Attitude toward Violence
+domain, a clear positive correlation with national wealth is observed as
+the median score rises from 52% in Low-Income countries to 75% in
+Upper-Middle-Income contexts. However, the widening of the interquartile
+range in wealthier groups suggests that economic growth alone does not
+harmonize social norms.
+
+In contrast, the Decision-Making domain shows extreme volatility within
+the Low-Income group, with scores ranging from 23% to 63%. This
+'long-box' phenomenon indicates that domestic authority can reach high
+levels even in resource-constrained environments, likely driven by
+specific institutional or cultural factors. Finally, Social Independence
+appears to be the most rigid dimension, characterized by lower overall
+scores and narrower distributions. The transition from a 23% median in
+Low-Income countries to only 60% in Upper-Middle countries confirms that
+physical and financial autonomy faces a 'structural ceiling' that is
+significantly more resistant to economic development than other
+dimensions of empowerment.
+
+### Analysis of empowerment by the quality of institutions
+
+In order to do this we will analyse graphically whether there seem to be
+a correlation between empowerment and the quality of institutions.
+
+*Political stability and women empowerment*
+
+```{r}
+final_recent |>
+  group_by(country, wbincome2024, domaine, political_stability) |>
+  summarise(score_moyen = mean(estimate, na.rm = TRUE), .groups = "drop") |>
+  filter(!is.na(political_stability), !is.na(score_moyen)) |>
+  ggplot(aes(x = political_stability, y = score_moyen, color = wbincome2024)) +
+  geom_point(alpha = 0.4, size = 1) +
+  geom_smooth(method = "lm", se = FALSE, linewidth = 1.2) + 
+  facet_wrap(~domaine, ncol = 3) +
+  scale_color_brewer(palette = "Set1") +
+  labs(
+    title = "Does Political Stability Foster Women's Empowerment?",
+    subtitle = "Comparison across economic levels (Low to Upper-Middle Income)",
+    x = "Political Stability Index (Percentile Rank)",
+    y = "Average Empowerment Score (%)",
+    color = "Income Group"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    legend.position = "bottom",
+    strip.background = element_rect(fill = "grey90", color = NA),
+    strip.text = element_text(face = "bold"),
+    panel.spacing = unit(1, "lines")
+  )
+```
+
+The divergent trends across income groups suggest that the relationship
+between political stability and empowerment is not linear but
+context-dependent. While stability is a fundamental prerequisite for
+empowerment in Low-Income settings, its impact diminishes or even
+reverses in Lower-Middle-Income contexts. In contrast, for
+Upper-Middle-Income nations, the positive correlation in decision-making
+indicates that stability provides the necessary environment for highly
+educated women to consolidate their role in governance and household
+management.
+
+*Voice and accountability and Women empowerment*
+
+```{r}
+final_recent |>
+  group_by(country, wbincome2024, domaine, voice_accountability) |>
+  summarise(score_moyen = mean(estimate, na.rm = TRUE), .groups = "drop") |>
+  filter(!is.na(voice_accountability), !is.na(score_moyen)) |>
+  ggplot(aes(x = voice_accountability, y = score_moyen, color = wbincome2024)) +
+  geom_point(alpha = 0.4, size = 1) +
+  geom_smooth(method = "lm", se = FALSE, linewidth = 1.2) + 
+  facet_wrap(~domaine, ncol = 3) +
+  scale_color_brewer(palette = "Set1") +
+  labs(
+    title = "Correlation between Voice and Accountability and Women's Empowerment",
+    x = "Voice & Accountability (Percentile Rank)",
+    y = "Average Empowerment Score (%)",
+    color = "Income Group"
+  ) +
+  theme_minimal()
+```
+
+Voice and Accountability shows a positive correlation with reduced
+violence across most groups, yet reveals a striking divergence in
+autonomy: while Upper-Middle-Income countries see gains across all
+domains, Low and Lower-Middle-Income nations experience a 'participation
+paradox' where increased political voice coincides with a decline in
+domestic decision-making and social independence.
+
+*Rule of law and women empowerment*
+
+```{r}
+final_recent |>
+  group_by(country, wbincome2024, domaine, rule_of_law) |>
+  summarise(score_moyen = mean(estimate, na.rm = TRUE), .groups = "drop") |>
+  filter(!is.na(rule_of_law), !is.na(score_moyen)) |>
+  ggplot(aes(x = rule_of_law, y = score_moyen, color = wbincome2024)) +
+  geom_point(alpha = 0.4, size = 1) +
+  geom_smooth(method = "lm", se = FALSE, linewidth = 1.2) + 
+  facet_wrap(~domaine, ncol = 3) +
+  scale_color_brewer(palette = "Set1") +
+  labs(
+    title = "Correlation between rule of law and Women's Empowerment",
+    subtitle = "Analysis of legal frameworks across income groups",
+    x = "Rule of Law (Percentile Rank)",
+    y = "Average Empowerment Score (%)",
+    color = "Income Group"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    legend.position = "bottom",
+    strip.background = element_rect(fill = "grey90", color = NA),
+    strip.text = element_text(face = "bold"),
+    panel.spacing = unit(1, "lines")
+  )
+```
+
+Rule of Law acts as a universal driver for social independence and
+attitudes against violence across all income groups; however, it fails
+to penetrate the domestic sphere in lower-income economies, where
+decision-making power continues to decline despite strengthening legal
+frameworks.
+
+### Analysis of empowerment by development of financing systems
+
+*Digital payments*
+
+```{r}
+final_recent |>
+  filter(
+    indicator_name %in% c(
+      "Women with high empowerment in the attitude to violence domain (%)",
+      "Women with high empowerment in the decision-making domain (%)",
+      "Women with high empowerment in the social independence domain (%)"
+    ),
+    wbincome2024 != "High income"
+  ) |>
+  mutate(domaine = str_remove_all(indicator_name, "Women with high empowerment in the | domain \\(%\\)")) |>
+  group_by(country, wbincome2024, domaine, digital_payment) |>
+  summarise(score_moyen = mean(estimate, na.rm = TRUE), .groups = "drop") |>
+  filter(!is.na(digital_payment), !is.na(score_moyen)) |>
+  
+  ggplot(aes(x = digital_payment, y = score_moyen, color = wbincome2024)) +
+  geom_count(alpha = 0.3, size = 1) + 
+  geom_smooth(method = "lm", formula = y ~ x, se = TRUE, aes(fill = wbincome2024), alpha = 0.1) +
+  facet_wrap(~domaine) +
+  scale_color_brewer(palette = "Set1") +
+  scale_fill_brewer(palette = "Set1") +
+  labs(
+    title = "Correlation between the development of digital payment on Women's Empowerment",
+    subtitle = "Size of dots represents the number of countries; Shaded areas show confidence intervals",
+    x = "% of population with Digital Payments",
+    y = "Empowerment Score (%)",
+    size = "Number of Countries"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom", panel.grid.minor = element_blank())
+```
+
+The data on digital financial inclusion reveals a complex landscape:
+while it serves as a catalyst for changing attitudes toward violence in
+Lower-Middle-Income countries, it shows a global negative correlation
+with decision-making and social independence, suggesting that digital
+tools alone—potentially due to data scarcity or the 'digital
+divide'—have yet to translate into broader structural autonomy for women
+in developing economies.
+
+*Does having a bank account is correlated with women ewmpowerment ?*
+
+```{r}
+final_recent |>
+  filter(
+    indicator_name %in% c(
+      "Women with high empowerment in the attitude to violence domain (%)",
+      "Women with high empowerment in the decision-making domain (%)",
+      "Women with high empowerment in the social independence domain (%)"
+    ),
+    wbincome2024 != "High income"
+  ) |>
+  mutate(domaine = str_remove_all(indicator_name, "Women with high empowerment in the | domain \\(%\\)")) |>
+  group_by(country, wbincome2024, domaine, has_bank_account) |>
+  summarise(score_moyen = mean(estimate, na.rm = TRUE), .groups = "drop") |>
+  filter(!is.na(has_bank_account), !is.na(score_moyen)) |>
+  
+  ggplot(aes(x = has_bank_account, y = score_moyen, color = wbincome2024)) +
+  geom_count(alpha = 0.3, size = 1) + 
+  geom_smooth(method = "lm", formula = y ~ x, se = TRUE, aes(fill = wbincome2024), alpha = 0.1) +
+  facet_wrap(~domaine) +
+  scale_color_brewer(palette = "Set1") +
+  scale_fill_brewer(palette = "Set1") +
+  labs(
+    title = "Correlation between the share of population which has a bank accont and Women's Empowerment",
+    subtitle = "Size of dots represents the number of countries; Shaded areas show confidence intervals",
+    x = "% of population who has a bank account",
+    y = "Empowerment Score (%)",
+    size = "Number of Countries"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom", panel.grid.minor = element_blank())
+```
+
+Analysis of formal bank account ownership reveals a transitional stage:
+while it fosters social independence and decision-making power in
+Lower-Middle-Income countries, it shows a slight negative correlation
+with attitudes toward violence globally and a decline in decision-making
+for Upper-Middle-Income groups, potentially reflecting a shift where
+basic banking is no longer a sufficient lever for empowerment in more
+advanced economies.
+
+*Ability to borrow to bank to start a business*
+
+```{r}
+final_cleaned_all |>
+  filter(
+    indicator_name %in% c(
+      "Women with high empowerment in the attitude to violence domain (%)",
+      "Women with high empowerment in the decision-making domain (%)",
+      "Women with high empowerment in the social independence domain (%)"
+    ),
+    wbincome2024 != "High income"
+  ) |>
+  mutate(domaine = str_remove_all(indicator_name, "Women with high empowerment in the | domain \\(%\\)")) |>
+  group_by(country, wbincome2024, domaine, borrow_start_business) |>
+  summarise(score_moyen = mean(estimate, na.rm = TRUE), .groups = "drop") |>
+  filter(!is.na(borrow_start_business), !is.na(score_moyen)) |>
+  
+  ggplot(aes(x = borrow_start_business, y = score_moyen, color = wbincome2024)) +
+  geom_count(alpha = 0.3, size = 1) + 
+  geom_smooth(method = "lm", formula = y ~ x, se = TRUE, aes(fill = wbincome2024), alpha = 0.1) +
+  facet_wrap(~domaine) +
+  scale_color_brewer(palette = "Set1") +
+  scale_fill_brewer(palette = "Set1") +
+  labs(
+    title = "Correlation between the share of population which borrow to start its business and Women's Empowerment",
+    subtitle = "Size of dots represents the number of countries; Shaded areas show confidence intervals",
+    x = "% of population who borrow to start a business",
+    y = "Empowerment Score (%)",
+    size = "Number of Countries"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom", panel.grid.minor = element_blank())
+```
+
+The data analysis reveals that while borrowing to bank to start a
+business correlate with increased social independence in
+Lower-Middle-Income countries, they show a global decline in
+decision-making power and attitudes toward violence, suggesting that
+digital financial tools may increase women's mobility without yet
+shifting deep-seated domestic power dynamics or social norms.
+
+```{r}
+final_recent |>
+  filter(
+    indicator_name %in% c(
+      "Women with high empowerment in the attitude to violence domain (%)",
+      "Women with high empowerment in the decision-making domain (%)",
+      "Women with high empowerment in the social independence domain (%)"
+    ),
+    wbincome2024 != "High income"
+  ) |>
+  mutate(domaine = str_remove_all(indicator_name, "Women with high empowerment in the | domain \\(%\\)")) |>
+  group_by(country, wbincome2024, domaine, save_bank_account) |>
+  summarise(score_moyen = mean(estimate, na.rm = TRUE), .groups = "drop") |>
+  filter(!is.na(save_bank_account), !is.na(score_moyen)) |>
+  
+  ggplot(aes(x = save_bank_account, y = score_moyen, color = wbincome2024)) +
+  geom_count(alpha = 0.3, size = 1) + 
+  geom_smooth(method = "lm", formula = y ~ x, se = TRUE, aes(fill = wbincome2024), alpha = 0.1) +
+  facet_wrap(~domaine) +
+  scale_color_brewer(palette = "Set1") +
+  scale_fill_brewer(palette = "Set1") +
+  labs(
+    title = "Correlation between the share of population who save on a bank account and Women's Empowerment",
+    subtitle = "Size of dots represents the number of countries; Shaded areas show confidence intervals",
+    x = "% of population who saves of a bank account",
+    y = "Empowerment Score (%)",
+    size = "Number of Countries"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom", panel.grid.minor = element_blank())
+```
+
+The analysis of formal savings shows that while it correlates with
+increased attitudes against violence in Lower-Middle-Income countries,
+it appears decoupled from broader empowerment; in fact, formal savings
+coincide with a decline in decision-making and social independence
+across most groups, suggesting that saving may be a protective financial
+strategy rather than a tool for immediate domestic or social autonomy.
+
+Limits of our analysis : we can observe that there is a lack of data on
+low income country it could be due to
+
+## Econometric regression with scatter plots
+
+In this part we are using a dataset including the GDP of each country and we created a region 
+
+To compute our different tests, we will do 4 hypothesis : 
+1° **the ability of women to empower themselves in the social sphere** depends on
+political freedom and their ability to access formal financial services
+To test this we will use : 
+- as a dependent variable : women empowerment
+in the social domain 
+- as an explicative variable : voice_accountability, has_bank_account, digital_payments and
+log_gdp
+
+2° **The ability of women to empower themselves in violent situations**
+To test this we will use - as a dependent variable : women attitude
+toward violence - as an explicative variable : log_gdp,
+political_stability, rule_of_law, save_bank_account
+
+3° **The ability of women to empower themselves in the decision-making domain** 
+To test this we will use : - as a dependent variable : women
+empowerment in the decision-makin domain - as an explicative variable :
+log_gdp, voice_accountability, rule_of_law, borrow_start_business
+
+
+**Test of women empowerment in social domain**
+
+```{r}
+fit <- lm(estimate ~ log_gdp + voice_accountability + digital_payment + has_bank_account, 
+          data = final_with_gdp |> filter(domaine == "social independence"))
+
+results_robust <- coeftest(fit, vcov = vcovHC(fit, type = "HC1"))
+
+print(results_robust)
+```
+
+The empirical results reveal a complex relationship between economic
+development, technology, and social empowerment:
+
+-   **The Dominance of GDP in Development**: The coefficient for Log GDP
+    per capita is positive and highly significant (β=19.05,p<0.001).
+    This confirms that national wealth remains the primary engine for
+    social independence, likely by increasing access to education,
+    infrastructure, and health services for women.
+
+-   **The effect of freedom and democrocy** : étonnement l'accès au
+    libertés notamment d'expression n'accentue pas l'empowerment des
+    femmes dans le domaine social mais semble avoir un effet
+    significatif négatif sur celle-ci (β=−0,124,p<0.01)
+
+-   **The Digital Paradox**: The Digital Payment variable shows a
+    significant negative coefficient (β=−22,736,p<0.05). This
+    counter-intuitive result suggests that in the absence of targeted
+    social policies, the mere expansion of digital financial tools does
+    not automatically translate into greater social autonomy. It may
+    reflect a "participation paradox" where digital tools are prevalent
+    in societies where physical mobility remains restricted, or where
+    digital surveillance offsets the benefits of financial inclusion.
+
+**Attitude toward violence**
+
+```{r}
+fit_violence <- lm(estimate ~ log_gdp + rule_of_law + political_stability + save_bank_account, 
+                   data = final_with_gdp %>% filter(domaine == "attitude to violence"))
+
+results_violence <- coeftest(fit_violence, vcov = vcovHC(fit_violence, type = "HC1"))
+print(results_violence)
+```
+
+```{r}
+fit_decision <- lm(estimate ~ log_gdp + voice_accountability + borrow_start_business, 
+                   data = final_with_gdp %>% filter(domaine == "decision-making"))
+
+results_decision <- coeftest(fit_decision, vcov = vcovHC(fit_decision, type = "HC1"))
+print(results_decision)
+```
+
+This model reveals three different things : 
+- **the power of economic growth**: the effect of Log GDP is even stronger here (β=32.28) than in
+the Social domain. This suggest that at the macro level, national wealth
+is a prerequisite for women to gain agency in household
+decision-making. 
+- **The effect of Voice and accountability** : The
+coefficient is negative and highly significant (β=−1.004). It suggests
+that in countries with higher political freedom and citizen
+participation, women's reported power in domestic decisions actually
+tends to be lower. 
+- **The Banker lever** : Unlike the "Digital Payment"
+paradox found earlier, Has Bank Account is a very strong positive
+predictor (β=19.07).
+
+### Testing model's robustness
+
+```{r}
+vif_social <- vif(fit) 
+print(vif_social)
+
+vif_violence <- vif(fit_violence)
+print(vif_violence)
+
+vif_decision <- vif(fit_decision)
+print(vif_decision)
+```
+
+**Breusch-Pagan test (heteroscedasticity)**
+
+```{r}
+bptest(fit)
+bptest(fit_violence)
+bptest(fit_decision)
+```
+
+To validate the reliability of our statistical inferences, we performed
+the Studentized Breusch-Pagan test on our three models. For the Social
+Independence (p=0.0016), Attitude toward Violence (p\<2.2e−16), and
+Decision-Making (p\<1.9e−06) models, the null hypothesis of
+homoscedasticity was strongly rejected.
+
+This result confirms that the variance of the residuals is not constant
+across observations, which is common in cross-country analyses where
+heteroscedasticity often arises from differences in country size or
+institutional volatility. To address this, we systematically applied
+White’s Heteroscedasticity-Consistent (HC1) standard errors. This robust
+estimation ensures that our t-statistics and p-values remain valid and
+that the reported significance of our predictors—such as GDP and
+financial inclusion—is not artificially inflated.
+
+**Cook test**
+
+```{r}
+plot(fit, which = 4)
+plot(fit_violence, which = 4)
+plot(fit_decision, which = 4)
+```
+
+**Model Reliability and Predictive Power Statistics**
+```{r}
+get_model_stats <- function(model) {
+  s <- summary(model)
+  data.frame(
+    R2 = s$r.squared,
+    Adj_R2 = s$adj.r.squared,
+    F_statistic = s$fstatistic[1],
+    p_value_F = pf(s$fstatistic[1], s$fstatistic[2], s$fstatistic[3], lower.tail = FALSE)
+  )
+}
+
+stats_social <- get_model_stats(fit)
+stats_violence <- get_model_stats(fit_violence)
+stats_decision <- get_model_stats(fit_decision)
+
+model_performance <- bind_rows(
+  mutate(stats_social, Model = "Social"),
+  mutate(stats_violence, Model = "Violence"),
+  mutate(stats_decision, Model = "Decision")
+)
+
+knitr::kable(model_performance, digits = 3, caption = "Global Model Performance Indicators")
+```
+
+With this regression we are trying to see whether the impact of financial inclusion depend on national economic development.It seems that despite our analysis the the R squared is still low. 
+=> to explain this significative difference of the value of the R squared between our decision making model and empowerment in the social domain we perheps can use some study which show that social mobility and empowerment is governed by informal institutions 
+```{r}
+fit_social_inter <- lm(estimate ~ log_gdp * has_bank_account + voice_accountability, 
+                       data = final_with_gdp %>% filter(domaine == "social independence"))
+
+results_inter <- coeftest(fit_social_inter, vcov = vcovHC(fit_social_inter, type = "HC1"))
+print(results_inter)
+
+summary(fit_social_inter)$adj.r.squared
+```
+
+
+
+
+## Diagnosis tests
+
+A faire : 
+- améliorer la forme du devoir : formulation de la question de recherche doit être mieux amenée, contextualisée, éventuellement en faisant appel à de la littérature scientifique
+- mieux expliciter les résultats rigoureusement : faire attention dans les interprétations graphiques à ne pas faire d'analyse causales mais simplement des corrélations entre variables 
+A un moment dans l'analyse graphique on a très peu de données sur les pays pauvres : expliciter pourquoi et dire que donc on a un biais dans notre analyse 
+- pour chacun des résultats étonnant que l'on a dans les régressions ou interprétations graphiques trouver de la littérature scientifique et donner une analyse temporelle dans le temps de l'empowerment des femmes (si elle existe qui permettrait d'expliquer ces résutlats : exemple le digital paradox, expliquer le voice and accountability paradox sur
+l'émancipation des femmes dans la sphère sociale)
+- sur la partie régression économétrique : mettre une table pour chacune des variables utilisées avec min/max/ nombre d'observations, améliorer l'interprétation des régressions / OLS, faire l'interprétation des tests VIF (évalue la multicolinéarité) / Breusch Pagan (homoscédasticité) / test de Cook, ajouter une analyse des limites de notre travail, éventuellement améliorer la clarté de la présentation de nos résultats avec une table qui résume tout 
+- ajouter un test de Khi 2
+Eventuellement on peut ajouter d'autres régressions ou modifier les hypothèses initiales qui sous tendent les régressions, l'idée était de faire un premier travail puis d'ajuster, éventuellement ajouter au début une analyse géographique en ajoutant une variable région (déjà présente dans le dataset : final_with_gdp)
+
+
+
+
+
+
+## Conclusion
