@@ -40,6 +40,14 @@ library(car)
 
 ## Research question presentation
 
+The empowerment of women is tackled by the United Nations as a key step towards development as it holds the fifth position among the Sustainable Development Goals (SDGs), just behind the objectives of no poverty, zero hunger, good health and quality education. 
+
+Yet, as of January 2025, women held only 27.2% of national parliament seats. This represents a tiny 0.3 point increase compared to 2024. 
+
+The reviews of literature show that the progress is even slower in the financial domain, thus hindering women's empowerment. Scholars stress the need for more financial independence for women. For instance, Sujan (2016) makes a list of financial tasks essential in a household that could be endorsed by women, Bhumija Chauhan (2024) shows there is a robust evidence of a correlation between financial independence and economic, social and political empowerment. Pal, Gupta and Joshi(2022) show that earning status, social security schemes, and financial decision-making at household level are significant to promote women empowerment through financial inclusion. 
+
+**Transition missing**
+
 Research question : Do the quality of institutions and the development
 of institutional financing systems enable women to empower themselves in
 the social and decision-making domains ?
@@ -53,7 +61,7 @@ indicators and women's empowerment to explore this relationship in a
 comprehensive manner.
 
 Dependent variables : women empowerment in the social domain and in the
-decision making domain
+decision making domain.
 
 Explanatory variables : From the Findex dataset : borrowing from family
 and friends (borrow_family_friends), using digital payments
@@ -65,7 +73,7 @@ From the Worldwide governance index : Voice and Accountability: Estimate
 and Voice and Accountability: Percentile Rank, Rule of Law: Estimate and
 Rule of Law: Percentile Rank, and Political Stability and Absence of
 Violence/Terrorism: Estimate and Political Stability and Absence of
-Violence/Terrorism: Percentile Rank
+Violence/Terrorism: Percentile Rank. 
 
 Our analysis relies primarily on three datasets. First the Global Findex
 Database 2025, which privides demand-side data on financial inclusion,
@@ -80,14 +88,14 @@ multiple dimensions such as political stability, rule of la, regulatory
 quality and voice and accountability. These indicators allow us to
 assess the institutional context in where financial systems operate.
 
-The Empowerment dataset.
+The Empowerment dataset proposes an estimation of the empowerment of women in the social independence domain, the decision-making model and the attitude to violence.
 
 To provide a more nuanced analysis, we will do distinctions between
 countries to see how cultural and legal frameworks often influence
 women's access to financial resources and participation in economic
 activity.
 
-In term of methodology our project will combine descriptive statistics,
+In terms of methodology our project will combine descriptive statistics,
 correlation analysis and regression models. The goal is to assess the
 relationship between governance quality, financial inclusion and women's
 empowerment. The clean datasets allow us to focus on the most relevant
@@ -96,18 +104,10 @@ variables.
 In our analysis we will focus on the most recent data and give
 historical analysis with previous litterature made on this question.
 
-Pour répondre à cette question de recherche nous allons : 1° analyse
-géographique comparative des pays par groupes de revenus et de
-l'émancipation des femmes : par la réalisation de nuages de points
-L'analyse se fera par : niveau de développement économique (middle, low,
-high income countrie), par religion dominante (muslim vs non muslim en
-ajoutant un nouveau dataset), 2° analyse de la corrélation entre finance
-institutions et autonomie des femmes,
-
-3° réaliser des régressions économétriques en isolant inclusion
-financière et degré d'autonomie des femmes Les tests se composeront de
-test de significativité des coefficients et de la qualité du modèle (à
-réaliser sur plusieurs variables : 3 tests biens ciblés à choisir)
+To answer this research question wo will : 
+1° do a comparative geographical analysis of countries per GDP (low, middle, high income country) and dominant religion (Muslim vs non Muslim), and analyze women empowerment through scatter points clouds. 
+2° do an analysis of the correlation between finance institutions and women empowerment
+3° realise econometric regressions by isolating financial inclusion and level of autonomy for women. The tests will ficus on the robustness of the coefficients and the quality of the model.
 
 ## Dataset description
 
@@ -126,8 +126,9 @@ time.
 
 From this survey are drawn 9 indicators, distributed across 3 domains
 
-:   -   *Social Independence Domain* - *Decision-Making Domain* -
-        *Violence Domain*
+:   - *Social Independence Domain* 
+    - *Decision-Making Domain*
+    - *Violence Domain*
 
 ### Findex (cleaned dataset)
 
@@ -135,8 +136,8 @@ From this survey are drawn 9 indicators, distributed across 3 domains
 Findex <- readRDS(here("datafinalproject", "Findexclean.rds"))
 ```
 
-In the cleaned format of this dataset we have 8 variables : - Country,
-codecountry and year : giving informations about the observations
+In the cleaned format of this dataset we have 8 variables : 
+-   Country, codecountry and year : giving informations about the observations
 
 -   "has_bank_account" : The percentage of respondents who report being
     employed in the private sector and receiving any money from their
