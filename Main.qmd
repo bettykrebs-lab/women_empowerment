@@ -12,9 +12,18 @@ output:
     code_folding: show
 ---
 
-##Github We worked in the following github repositery https://github.com/bettykrebs-lab/women_empowerment.git
+##Github 
+We worked in the following github repositery https://github.com/bettykrebs-lab/women_empowerment.git
 
 ## Description of our research question
+
+The empowerment of women is tackled by the United Nations as a key step towards development as it holds the fifth position among the Sustainable Development Goals (SDGs), just behind the objectives of no poverty, zero hunger, good health and quality education. 
+
+Yet, as of January 2025, women held only 27.2% of national parliament seats. This represents a tiny 0.3 point increase compared to 2024. 
+
+The reviews of literature show that the progress is even slower in the financial domain, thus hindering women's empowerment. Scholars stress the need for more financial independence for women. For instance, Sujan (2016) makes a list of financial tasks essential in a household that could be endorsed by women, Bhumija Chauhan (2024) shows there is a robust evidence of a correlation between financial independence and economic, social and political empowerment. Pal, Gupta and Joshi(2022) show that earning status, social security schemes, and financial decision-making at household level are significant to promote women empowerment through financial inclusion. 
+
+**Transition missing**
 
 Research question : Do the quality of institutions and the development of institutional financing systems enable women to empower themselves in the social and decision-making domains ?
 
