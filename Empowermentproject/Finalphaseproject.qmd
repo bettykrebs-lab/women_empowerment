@@ -84,7 +84,7 @@ to financial resources and their ability to manage risk and participate
 in economic activity.
 
 The WGI dataset offers a measure of institutional quality across
-multiple dimensions such as political stability, rule of la, regulatory
+multiple dimensions such as political stability, rule of law, regulatory
 quality and voice and accountability. These indicators allow us to
 assess the institutional context in where financial systems operate.
 
@@ -107,7 +107,7 @@ historical analysis with previous litterature made on this question.
 To answer this research question wo will : 
 1° do a comparative geographical analysis of countries per GDP (low, middle, high income country) and dominant religion (Muslim vs non Muslim), and analyze women empowerment through scatter points clouds. 
 2° do an analysis of the correlation between finance institutions and women empowerment
-3° realise econometric regressions by isolating financial inclusion and level of autonomy for women. The tests will ficus on the robustness of the coefficients and the quality of the model.
+3° realise econometric regressions by isolating financial inclusion and level of autonomy for women. The tests will focus on the robustness of the coefficients and the quality of the model.
 
 ## Dataset description
 
@@ -124,9 +124,8 @@ It is the first index in the gender domain to propose an
 individual-level comparison between a large number of countries and over
 time.
 
-From this survey are drawn 9 indicators, distributed across 3 domains
-
-:   - *Social Independence Domain* 
+From this survey are drawn 9 indicators, distributed across 3 domains:
+    - *Social Independence Domain* 
     - *Decision-Making Domain*
     - *Violence Domain*
 
@@ -137,6 +136,7 @@ Findex <- readRDS(here("datafinalproject", "Findexclean.rds"))
 ```
 
 In the cleaned format of this dataset we have 8 variables : 
+
 -   Country, codecountry and year : giving informations about the observations
 
 -   "has_bank_account" : The percentage of respondents who report being
@@ -174,12 +174,9 @@ In the cleaned format of this dataset we have 8 variables :
 WGI <- readRDS(here("datafinalproject", "WGI_cleaned.rds"))
 ```
 
-For our research question we are using : - political stability and the
-absence of terrorism as an explicative variable of women empowerment It
-measures perceptions of the likelihood of political instability and/or
-politically-motivated violence, including terrorism. Estimate gives the
-country's score on the aggregate indicator, in units of a standard
-normal distribution, i.e. ranging from approximately -2.5 to 2.5.
+For our research question we are using : 
+
+-   political stability and the absence of terrorism as an explicative variable of women empowerment.      It measures perceptions of the likelihood of political instability and/or politically-motivated        violence, including terrorism. Estimate gives the country's score on the aggregate indicator, in       units of a standard normal distribution, i.e. ranging from approximately -2.5 to 2.5.
 
 -   Voice and accountability : captures perceptions of the extent to
     which a country's citizens are able to participate in selecting
@@ -192,17 +189,17 @@ normal distribution, i.e. ranging from approximately -2.5 to 2.5.
     of the government to formulate and implement sound policies and
     regulations that permit and promote private sector development.
 
-For each indicators we keep the estimate and the percentile value: -
-Estimate gives the country's score on the aggregate indicator, in units
-of a standard normal distribution. - Percentile rank indicates the
-country's rank among all countries covered by the aggregate indicator,
+For each indicators we keep the estimate and the percentile value: 
+-Estimate gives the country's score on the aggregate indicator, in units
+of a standard normal distribution. 
+- Percentile rank indicates the country's rank among all countries covered by the aggregate indicator,
 with 0 corresponding to lowest rank, and 100 to highest rank. Percentile
 ranks have been adjusted to correct for changes over time in the
 composition of the countries covered by the WGI.
 
 ### Joined file
 
-The final dataset integrates all variables from the aforementioned
+The final dataset integrates all variables from the beforementioned
 sources. By using the country code and year as primary keys, we
 successfully merged the data into a single, comprehensive table for our
 analysis.
@@ -268,7 +265,7 @@ shocks. Notably, the Social Independence domain shows a concerning
 stagnation, or even a slight decline in some Upper-Middle and Low-Income
 contexts, indicating that physical mobility and financial autonomy
 remain the most difficult barriers to break, despite improvements in
-other areas
+other areas.
 
 ### Analysis of empowerment by income group
 
@@ -307,13 +304,13 @@ final_recent |>
     "Women with high empowerment in the decision-making domain (%)",
     "Women with high empowerment in the social independence domain (%)"
   ), wbincome2024 != "High income") |>
-  # On ajoute un filtre de sécurité pour les scores vides
+  # We add a security filter pour empty scores
   filter(!is.na(estimate)) |> 
   group_by(country, wbincome2024, indicator_name) |>
   summarise(score_moyen = mean(estimate, na.rm = TRUE), .groups = "drop") |>
   mutate(domaine = str_remove_all(indicator_name, "Women with high empowerment in the | domain \\(%\\)")) |>
   ggplot(aes(x = wbincome2024, y = score_moyen, fill = wbincome2024)) +
-  # na.rm = TRUE supprime le warning des lignes supprimées
+  # na.rm = TRUE suppresses the warning on the deleted lines
   geom_boxplot(outlier.shape = NA, alpha = 0.7, na.rm = TRUE) +
   facet_wrap(~domaine, scales = "free_y") +
   labs(

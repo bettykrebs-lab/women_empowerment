@@ -23,27 +23,25 @@ Yet, as of January 2025, women held only 27.2% of national parliament seats. Thi
 
 The reviews of literature show that the progress is even slower in the financial domain, thus hindering women's empowerment. Scholars stress the need for more financial independence for women. For instance, Sujan (2016) makes a list of financial tasks essential in a household that could be endorsed by women, Bhumija Chauhan (2024) shows there is a robust evidence of a correlation between financial independence and economic, social and political empowerment. Pal, Gupta and Joshi(2022) show that earning status, social security schemes, and financial decision-making at household level are significant to promote women empowerment through financial inclusion. 
 
-**Transition missing**
-
 Research question : Do the quality of institutions and the development of institutional financing systems enable women to empower themselves in the social and decision-making domains ?
 
 The aim of our research question is to understand whether countries with higher-governance and more developed financial inclusion infrastructures provide better opportunities for women to participate in economic, social and decision-making activities.
 By combining multiple datasets, our study integrates information on financial behavior, governance indicators and women's empowerment to explore this relationship in a comprehensive manner.
 
-Dependent variables : women empowerment in the social domain and in the decision making domain
+Dependent variables : women empowerment in the social domain and in the decision making domain.
 
-Explanatory variables : From the Findex dataset : borrowing from family and friends (borrow_family_friends), using digital payments (digital_payment), saving in a bank account (save_bank_account), borrowing to start a business (borrow_start_business), and having a bank account (has_bank_account)
+Explanatory variables : From the Findex dataset : borrowing from family and friends (borrow_family_friends), using digital payments (digital_payment), saving in a bank account (save_bank_account), borrowing to start a business (borrow_start_business), and having a bank account (has_bank_account). 
 
-From the Worldwide governance index : Voice and Accountability: Estimate and Voice and Accountability: Percentile Rank, Rule of Law: Estimate and Rule of Law: Percentile Rank, and Political Stability and Absence of Violence/Terrorism: Estimate and Political Stability and Absence of Violence/Terrorism: Percentile Rank
+From the Worldwide governance index : Voice and Accountability: Estimate and Voice and Accountability: Percentile Rank, Rule of Law: Estimate and Rule of Law: Percentile Rank, and Political Stability and Absence of Violence/Terrorism: Estimate and Political Stability and Absence of Violence/Terrorism: Percentile Rank. 
 
 Our analysis relies primarily on three datasets.
-First the Global Findex Database 2025, which privides demand-side data on financial inclusion, including indicators such as account ownership, saving behaviour, borrowing formal and informal sources and use of digital financial services.
+First the Global Findex Database 2025, which provides demand-side data on financial inclusion, including indicators such as account ownership, saving behaviour, borrowing formal and informal sources and use of digital financial services.
 These variables are critical to understanding women's access to financial resources and their ability to manage risk and participate in economic activity.
 
-The WGI dataset offers a measure of institutional quality across multiple dimensions such as political stability, rule of la, regulatory quality and voice and accountability.
+The WGI dataset offers a measure of institutional quality across multiple dimensions such as political stability, rule of law, regulatory quality and voice and accountability.
 These indicators allow us to assess the institutional context in where financial systems operate.
 
-The Empowerment dataset. 
+The Empowerment dataset proposes an estimation of the empowerment of women in the social independence domain, the decision-making model and the attitude to violence. 
 
 To provide a more nuanced analysis, we will do distinctions between countries to see how cultural and legal frameworks often influence women's access to financial resources and participation in economic activity.
 We will certainly at a point of our analysis do a distinction between : Muslim / non Muslim countries, countries with strong / weak institutions, countries with important regulatory / with less legal framework.
@@ -79,7 +77,7 @@ survey-based women's empowerment index (SWPER). This index was first tested in A
 
 From this survey are drawn 9 indicators,  distributed across 3 domains : 
 
-- *Social Independence Domain*: This domain classifies women based on their level of empowerment within society: high, medium, or low. It includes schooling attainment, access to information, age at pivotal life events and spousal asset differentials and access to information.
+- *Social Independence Domain*: This domain classifies women based on their level of empowerment within society: high, medium, or low. It includes schooling attainment, access to information, age at pivotal life events, spousal asset differentials and access to information.
 
 - *Decision-Making Domain*: This domain assesses women's empowerment in making decisions, classifying them as having high, medium, or low empowerment. This examines the extent of the woman’s participation is household decisions, which may also be considered a measure of instrumental agency.
 
@@ -88,7 +86,7 @@ From this survey are drawn 9 indicators,  distributed across 3 domains :
 Those 9 indicators are disaggregated by age (with two subgroups 15-19yo and 20-49yo), economic status (determined within the country by calculating quintiles and deciles of the population), education (highest level of education reached by the women), place of residence and subnational regions.
 
 
-## Cleaning 
+### Cleaning 
 ```{r}
 str(Empowerment)
 ```
@@ -107,6 +105,29 @@ info <- function(df) {
 }
 
 t_info_Empowerment <- info(Empowerment)
+```
+
+```{r}
+info <- function(df, time_var = NULL) {
+  
+  period <- if (!is.null(time_var) && time_var %in% names(df)) {
+    paste0(min(df[[time_var]], na.rm = TRUE), "–",
+           max(df[[time_var]], na.rm = TRUE))
+  } else {
+    NA
+  }
+  
+  data.frame(
+    dataset_name = deparse(substitute(df)),
+    n_rows = nrow(df),
+    n_columns = ncol(df),
+    period = period,
+    total_missing = sum(is.na(df)),
+    rows_with_missing = sum(!complete.cases(df)),
+    duplicated_rows = sum(duplicated(df))
+  )
+}
+
 ```
 
 
