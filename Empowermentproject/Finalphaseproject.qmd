@@ -348,7 +348,7 @@ dimensions of empowerment.
 
 ### Analysis of empowerment by the quality of institutions
 
-In order to do this we will analyse graphically whether there seem to be
+In order to do this we will analyse graphically whether there seems to be
 a correlation between empowerment and the quality of institutions.
 
 *Political stability and women empowerment*
@@ -495,7 +495,7 @@ tools alone—potentially due to data scarcity or the 'digital
 divide'—have yet to translate into broader structural autonomy for women
 in developing economies.
 
-*Does having a bank account is correlated with women ewmpowerment ?*
+*Is having a bank account correlated with women empowerment ?*
 
 ```{r}
 final_recent |>
@@ -620,28 +620,206 @@ strategy rather than a tool for immediate domestic or social autonomy.
 Limits of our analysis : we can observe that there is a lack of data on
 low income country it could be due to
 
+
+##Empowerment in Muslim vs non-Muslim countries 
+
+We determined a list of Muslim countries following the CIA World Factbook 
+establishing a list of countries where a majority (more than 50%) of Muslims 
+lives. This list does not count Mayotte as it considered a French territory. 
+Palestine is considered by its two halves, the Gaza strip and West Bank. 
+
+```{r}
+muslim_countries <- c(
+  "SAU", "IRN", "IRQ", "EGY", "MAR", "DZA", "TUN", "JOR", "PAK", "BGD",
+  "IDN", "TUR", "AZE", "QAT", "KWT", "OMN", "YEM", "AFG", "MLI", "NER", "SOM", 
+  "MRT", "MDV", "COM", "UZB", "DJI", "SEN", "LBY", "TJK", "GMB", "TKM", "SYR", 
+  "SDN", "KGZ", "GIN", "ALB", "SLE", "BRN", "KAZ", "BHR", "MYS", "BFA", "LBN", 
+  "TCD", "NGA", "BIH"
+)
+final_cleaned_all |>
+  mutate(muslim_country = if_else(codecountry %in% muslim_countries,
+                              "Muslim countries",
+                              "Non-Muslim countries")
+  )
+```
+
+
+```{r}
+final_cleaned_all |>
+  mutate(
+    domaine = str_remove_all(
+      indicator_name,
+      "Women with high empowerment in the | domain \\(%\\)"
+    )
+  ) |>
+  filter(domaine == "decision-making") |>
+  group_by(codecountry, muslim_country) |>
+  summarise(
+    score_moyen = mean(estimate, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  ggplot(aes(x = muslim_country, y = score_moyen, fill = muslim_country)) +
+  geom_boxplot(alpha = 0.6, outlier.shape = NA) +
+  geom_jitter(width = 0.15, alpha = 0.4, size = 1) +
+  labs(
+    title = "Women's empowerment in the decision-making domain",
+    x = "",
+    y = "Share of women with high empowerment (%)"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+```
+
+```{r}
+final_recent |>
+  group_by(muslim_countries, domaine) |>
+  summarise(
+    mean_empowerment = mean(empowerment, na.rm = TRUE),
+    sd_empowerment = sd(empowerment, na.rm = TRUE),
+    n = n(),
+    .groups = "drop"
+  ) |>
+  ggplot(aes(x = muslim_countries, y = mean_empowerment, fill = muslim_countries)) +
+  geom_col(width = 0.6) +
+  geom_errorbar(
+    aes(ymin = mean_empowerment - sd_empowerment,
+        ymax = mean_empowerment + sd_empowerment),
+    width = 0.2
+  ) +
+  facet_wrap(~ domaine, scales = "free_y") +
+  labs(
+    title = "Average women's empowerment by domain and country group",
+    x = "",
+    y = "Mean empowerment index"
+  ) +
+  theme_minimal() +
+  theme(
+    legend.position = "none",
+    strip.text = element_text(face = "bold")
+  )
+
+```
+
+### Geographical analysis 
+
+
+```{r}
+final_recent |>
+  filter(
+    indicator_name %in% c(
+      "Women with high empowerment in the attitude to violence domain (%)",
+      "Women with high empowerment in the decision-making domain (%)",
+      "Women with high empowerment in the social independence domain (%)"
+    )
+  ) |>
+  mutate(
+    domaine = str_remove_all(
+      indicator_name,
+      "Women with high empowerment in the | domain \\(%\\)"
+    )
+  ) |>
+  group_by(whoreg6, domaine) |>
+  summarise(
+    mean_empowerment = mean(estimate, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  ggplot(aes(x = domaine, y = whoreg6, fill = mean_empowerment)) +
+  geom_tile(color = "white") +
+  scale_fill_viridis_c(
+    option = "C",
+    name = "Mean empowerment (%)"
+  ) +
+  labs(
+    title = "Average women's empowerment by region and domain",
+    x = "Empowerment domain",
+    y = "World Health Organisation region"
+  ) +
+  theme_minimal() +
+  theme(
+    panel.grid = element_blank(),
+    axis.text.x = element_text(angle = 20, hjust = 1),
+    plot.title = element_text(face = "bold")
+  )
+
+```
+
+```{r}
+library(tidyr)
+
+df_dumbbell <- final_recent |>
+  filter(
+    indicator_name %in% c(
+      "Women with high empowerment in the attitude to violence domain (%)",
+      "Women with high empowerment in the decision-making domain (%)",
+      "Women with high empowerment in the social independence domain (%)"
+    )
+  ) |>
+  mutate(
+    domaine = str_remove_all(
+      indicator_name,
+      "Women with high empowerment in the | domain \\(%\\)"
+    )
+  ) |>
+  group_by(whoreg6, domaine) |>
+  summarise(
+    mean_empowerment = mean(estimate, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  pivot_wider(names_from = domaine, values_from = mean_empowerment)
+
+ggplot(df_dumbbell) +
+  geom_segment(
+    aes(
+      y = whoreg6,
+      yend = whoreg6,
+      x = `attitude to violence`,
+      xend = `decision-making`
+    ),
+    color = "grey70",
+    linewidth = 1
+  ) +
+  geom_point(
+    aes(x = `attitude to violence`, y = whoreg6),
+    color = "#1b9e77",
+    size = 3
+  ) +
+  geom_point(
+    aes(x = `decision-making`, y = whoreg6),
+    color = "#d95f02",
+    size = 3
+  ) +
+  labs(
+    title = "Gap between empowerment domains by WHO region",
+    x = "Mean empowerment (%)",
+    y = "WHO region"
+  ) +
+  theme_minimal()
+
+```
+
+
 ## Econometric regression with scatter plots
 
-In this part we are using a dataset including the GDP of each country and we created a region 
+In this part we are using a dataset including the GDP of each country and we created a region.
 
 To compute our different tests, we will do 4 hypothesis : 
 1° **the ability of women to empower themselves in the social sphere** depends on
 political freedom and their ability to access formal financial services
 To test this we will use : 
-- as a dependent variable : women empowerment
-in the social domain 
+- as a dependent variable : women empowerment in the social domain 
 - as an explicative variable : voice_accountability, has_bank_account, digital_payments and
 log_gdp
 
 2° **The ability of women to empower themselves in violent situations**
-To test this we will use - as a dependent variable : women attitude
-toward violence - as an explicative variable : log_gdp,
-political_stability, rule_of_law, save_bank_account
+To test this we will use 
+- as a dependent variable : women attitude toward violence 
+- as an explicative variable : log_gdp, political_stability, rule_of_law, save_bank_account
 
 3° **The ability of women to empower themselves in the decision-making domain** 
-To test this we will use : - as a dependent variable : women
-empowerment in the decision-makin domain - as an explicative variable :
-log_gdp, voice_accountability, rule_of_law, borrow_start_business
+To test this we will use : 
+- as a dependent variable : women empowerment in the decision-making domain 
+- as an explicative variable : log_gdp, voice_accountability, rule_of_law, borrow_start_business
 
 
 **Test of women empowerment in social domain**
@@ -664,10 +842,7 @@ development, technology, and social empowerment:
     social independence, likely by increasing access to education,
     infrastructure, and health services for women.
 
--   **The effect of freedom and democrocy** : étonnement l'accès au
-    libertés notamment d'expression n'accentue pas l'empowerment des
-    femmes dans le domaine social mais semble avoir un effet
-    significatif négatif sur celle-ci (β=−0,124,p<0.01)
+-   **The effect of freedom and democracy** : the access to freedom and especially free speech             surprisingly does not allow for women empowerment in the social domain. On the contrary, it has a      significant negative effect on women empowerment (β=−0,124,p<0.01)
 
 -   **The Digital Paradox**: The Digital Payment variable shows a
     significant negative coefficient (β=−22,736,p<0.05). This
@@ -707,7 +882,7 @@ that in countries with higher political freedom and citizen
 participation, women's reported power in domestic decisions actually
 tends to be lower. 
 - **The Banker lever** : Unlike the "Digital Payment"
-paradox found earlier, Has Bank Account is a very strong positive
+paradox found earlier, Having a Bank Account is a very strong positive
 predictor (β=19.07).
 
 ### Testing model's robustness
@@ -779,8 +954,9 @@ model_performance <- bind_rows(
 knitr::kable(model_performance, digits = 3, caption = "Global Model Performance Indicators")
 ```
 
-With this regression we are trying to see whether the impact of financial inclusion depend on national economic development.It seems that despite our analysis the the R squared is still low. 
-=> to explain this significative difference of the value of the R squared between our decision making model and empowerment in the social domain we perheps can use some study which show that social mobility and empowerment is governed by informal institutions 
+With this regression we are trying to see whether the impact of financial inclusion depend on national economic development.It seems that despite our analysis the R squared is still low. 
+To explain this significant difference of the value of the R squared between our decision making model and empowerment in the social domain we can perhaps use some studies which show that social mobility and empowerment is governed by informal institutions. 
+
 ```{r}
 fit_social_inter <- lm(estimate ~ log_gdp * has_bank_account + voice_accountability, 
                        data = final_with_gdp %>% filter(domaine == "social independence"))
