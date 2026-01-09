@@ -40,74 +40,57 @@ library(car)
 
 ## Research question presentation
 
-The empowerment of women is tackled by the United Nations as a key step towards development as it holds the fifth position among the Sustainable Development Goals (SDGs), just behind the objectives of no poverty, zero hunger, good health and quality education. 
+Women empowerment is addressed by the United Nations as a key step towards development as it holds the fifth position among the Sustainable Development Goals (SDGs), just behind the objectives of no poverty, zero hunger, good health and quality education. 
 
 Yet, as of January 2025, women held only 27.2% of national parliament seats. This represents a tiny 0.3 point increase compared to 2024. 
 
-The reviews of literature show that the progress is even slower in the financial domain, thus hindering women's empowerment. Scholars stress the need for more financial independence for women. For instance, Sujan (2016) makes a list of financial tasks essential in a household that could be endorsed by women, Bhumija Chauhan (2024) shows there is a robust evidence of a correlation between financial independence and economic, social and political empowerment. Pal, Gupta and Joshi(2022) show that earning status, social security schemes, and financial decision-making at household level are significant to promote women empowerment through financial inclusion. 
+Recent literature shows that the progress is even slower in the financial domain, thus hindering women's empowerment. Scholars stress the need for more financial independence for women. For instance, Sujan (2016) makes a list of financial tasks essential in a household that could be endorsed by women, Bhumija Chauhan (2024) shows there is a robust evidence of a correlation between financial independence and economic, social and political empowerment. Pal, Gupta and Joshi(2022) show that earning status, social security schemes, and financial decision-making at household level are significant to promote women empowerment through financial inclusion. 
 
-**Transition missing**
+There is a significant gap regarding how institutional quality and financial infrastructure interact to produce empowerment. Specifically, we argue that individual access to bank accont may be insufficient if the rule of law is weak or if political instability restricts her mobility. 
+
+Our research aims at studying the interplay between institutional quality, legal frameworks, and financial infrastructure.
 
 Research question : Do the quality of institutions and the development
 of institutional financing systems enable women to empower themselves in
-the social and decision-making domains ?
+the social, decision-making and ability to respond to violence domains ?
 
-The aim of our research question is to understand whether countries with
-higher-governance and more developed financial inclusion infrastructures
-provide better opportunities for women to participate in economic,
-social and decision-making activities. By combining multiple datasets,
-our study integrates information on financial behavior, governance
-indicators and women's empowerment to explore this relationship in a
-comprehensive manner.
 
-Dependent variables : women empowerment in the social domain and in the
-decision making domain.
+**Variable selection** 
+The objective of our study is to determine whether countries with higher-governance and mature financial inclusion infrastructures
+provide better opportunities for women to participate in economic, social and decision-making activities. 
 
-Explanatory variables : From the Findex dataset : borrowing from family
+*Dependent variables* : we focus on three dimensions of the WHO's survey-based Women's Empowerment (SWPER) index : the social independence and decision-making domain and the attitude of women toward violence. 
+
+*Explanatory variables* 
+Financial inclusion (*Findex 2025*) : borrowing from family
 and friends (borrow_family_friends), using digital payments
 (digital_payment), saving in a bank account (save_bank_account),
 borrowing to start a business (borrow_start_business), and having a bank
 account (has_bank_account)
 
-From the Worldwide governance index : Voice and Accountability: Estimate
-and Voice and Accountability: Percentile Rank, Rule of Law: Estimate and
-Rule of Law: Percentile Rank, and Political Stability and Absence of
-Violence/Terrorism: Estimate and Political Stability and Absence of
-Violence/Terrorism: Percentile Rank. 
+From the Worldwide governance index (*WGI*) : Voice and Accountability, Rule of Law, Political Stability and Absence of violence or terrorism
 
-Our analysis relies primarily on three datasets. First the Global Findex
-Database 2025, which privides demand-side data on financial inclusion,
-including indicators such as account ownership, saving behaviour,
-borrowing formal and informal sources and use of digital financial
-services. These variables are critical to understanding women's access
+Our analysis relies primarily on three datasets :
+
+- Findex dataset (2025) which provides demand-side data on financial inclusion,
+including indicators such as account ownership, saving behaviour. These variables are critical to understanding women's access
 to financial resources and their ability to manage risk and participate
 in economic activity.
 
-The WGI dataset offers a measure of institutional quality across
+- WGI dataset : it offers a measure of institutional quality across
 multiple dimensions such as political stability, rule of law, regulatory
 quality and voice and accountability. These indicators allow us to
 assess the institutional context in where financial systems operate.
 
-The Empowerment dataset proposes an estimation of the empowerment of women in the social independence domain, the decision-making model and the attitude to violence.
+- The Empowerment dataset proposes an estimation of the empowerment of women in the social independence domain, the decision-making model and the attitude to violence.
 
-To provide a more nuanced analysis, we will do distinctions between
-countries to see how cultural and legal frameworks often influence
-women's access to financial resources and participation in economic
-activity.
+**Methodology** 
 
-In terms of methodology our project will combine descriptive statistics,
-correlation analysis and regression models. The goal is to assess the
-relationship between governance quality, financial inclusion and women's
-empowerment. The clean datasets allow us to focus on the most relevant
-variables.
+1. **Cross-country analysis** : we examine in a first part scores across different income groups (GDP) and cultural contexts using muldimensional visualizations 
 
-In our analysis we will focus on the most recent data and give
-historical analysis with previous litterature made on this question.
+2.**Correlation analysis** : we identify correlations between financial infrastructure development and empowerment outcomes 
 
-To answer this research question wo will : 
-1° do a comparative geographical analysis of countries per GDP (low, middle, high income country) and dominant religion (Muslim vs non Muslim), and analyze women empowerment through scatter points clouds. 
-2° do an analysis of the correlation between finance institutions and women empowerment
-3° realise econometric regressions by isolating financial inclusion and level of autonomy for women. The tests will focus on the robustness of the coefficients and the quality of the model.
+3. **Economic model and regression** : we estimate linear regression models with robustness tests to isolate the effects of institutions and finance, while using national wealth as a control variable (log(GDP)) to mitigate omitted variable bias. This approach allows us to tst the robustness of these determinants and identify potential paradoxes. 
 
 ## Dataset description
 
@@ -129,7 +112,7 @@ From this survey are drawn 9 indicators, distributed across 3 domains:
     - *Decision-Making Domain*
     - *Violence Domain*
 
-### Findex (cleaned dataset)
+### Findex 
 
 ```{r}
 Findex <- readRDS(here("datafinalproject", "Findexclean.rds"))
@@ -174,7 +157,7 @@ In the cleaned format of this dataset we have 8 variables :
 WGI <- readRDS(here("datafinalproject", "WGI_cleaned.rds"))
 ```
 
-For our research question we are using : 
+The main variables of this dataset are : 
 
 -   political stability and the absence of terrorism as an explicative variable of women empowerment.      It measures perceptions of the likelihood of political instability and/or politically-motivated        violence, including terrorism. Estimate gives the country's score on the aggregate indicator, in       units of a standard normal distribution, i.e. ranging from approximately -2.5 to 2.5.
 
@@ -189,9 +172,12 @@ For our research question we are using :
     of the government to formulate and implement sound policies and
     regulations that permit and promote private sector development.
 
+
 For each indicators we keep the estimate and the percentile value: 
--Estimate gives the country's score on the aggregate indicator, in units
+
+- Estimate gives the country's score on the aggregate indicator, in units
 of a standard normal distribution. 
+
 - Percentile rank indicates the country's rank among all countries covered by the aggregate indicator,
 with 0 corresponding to lowest rank, and 100 to highest rank. Percentile
 ranks have been adjusted to correct for changes over time in the
@@ -210,7 +196,7 @@ final_cleaned_all <- readRDS(here("datafinalproject", "final_cleaned_all.rds"))
 
 To improve analytical precision, the final_recent dataset was restricted
 to 2023 empowerment values. This minimizes the time gap with the 2024
-WGI and Findex data, ensuring that the relationship between governance
+WGI and Findex data, ensuring that the relationship between governanc, access to financial services
 and empowerment is based on nearly contemporaneous observations.
 
 ```{r}
@@ -220,7 +206,6 @@ final_recent <- readRDS(here("datafinalproject", "final_recent.rds"))
 ```{r}
 final_with_gdp <- readRDS(here("datafinalproject", "final_with_gdp.rds"))
 ```
-
 
 ## Graphical representations
 
@@ -267,6 +252,10 @@ contexts, indicating that physical mobility and financial autonomy
 remain the most difficult barriers to break, despite improvements in
 other areas.
 
+Our temporal analysis reflect a shorter window of a longer historical process which was documented by Claudia Goldin (2006) in her study of the 20th century. In her U-shaped hypothesis, Claudia Goldin's explains the non-linear relationship between econimic development and women's labor participation to labor. In agrarian economies female labor is high because production takes place within the household and the family where women's work is seen as "socially-acceptable". As economies industrialize, their participation declines because they are spatially separated from the home, and industrial jobs are considered as too demanding for a married woman. In a thrid time, at higher level of develoment female labor participation increases as the economy shift toward service-sector. For Goldin it is in this part that fertility declines as they are empowering themselves by having their own source of income. Thus as it is observed in our graphics, female empowermetn does not automatically lead to continuous improvments in gender equality and the empowerment of women. 
+
+In order to explain why women's empowerment in attitude toward violence seem to increase more significantly we could rely on Jaychandran (2015) study which shows that in order to allow women empowerment, it is harder to change cultural practices that are the main factors of women unempowerment. 
+
 ### Analysis of empowerment by income group
 
 ```{r}
@@ -293,9 +282,6 @@ a higher ceiling of empowerment, the low positioning of the mean within
 a tall box suggests persistent internal disparities, where a large
 segment of the female population has yet to catch up with the top
 achievers.
-
-Let's analyse this deeper by focusing on social domain and decision
-making domain by countries :
 
 ```{r}
 final_recent |>
@@ -336,7 +322,7 @@ harmonize social norms.
 
 In contrast, the Decision-Making domain shows extreme volatility within
 the Low-Income group, with scores ranging from 23% to 63%. This
-'long-box' phenomenon indicates that domestic authority can reach high
+'long-box' indicates that domestic authority can reach high
 levels even in resource-constrained environments, likely driven by
 specific institutional or cultural factors. Finally, Social Independence
 appears to be the most rigid dimension, characterized by lower overall
@@ -621,86 +607,6 @@ Limits of our analysis : we can observe that there is a lack of data on
 low income country it could be due to
 
 
-##Empowerment in Muslim vs non-Muslim countries 
-
-We determined a list of Muslim countries following the CIA World Factbook 
-establishing a list of countries where a majority (more than 50%) of Muslims 
-lives. This list does not count Mayotte as it considered a French territory. 
-Palestine is considered by its two halves, the Gaza strip and West Bank. 
-
-```{r}
-muslim_countries <- c(
-  "SAU", "IRN", "IRQ", "EGY", "MAR", "DZA", "TUN", "JOR", "PAK", "BGD",
-  "IDN", "TUR", "AZE", "QAT", "KWT", "OMN", "YEM", "AFG", "MLI", "NER", "SOM", 
-  "MRT", "MDV", "COM", "UZB", "DJI", "SEN", "LBY", "TJK", "GMB", "TKM", "SYR", 
-  "SDN", "KGZ", "GIN", "ALB", "SLE", "BRN", "KAZ", "BHR", "MYS", "BFA", "LBN", 
-  "TCD", "NGA", "BIH"
-)
-final_cleaned_all |>
-  mutate(muslim_country = if_else(codecountry %in% muslim_countries,
-                              "Muslim countries",
-                              "Non-Muslim countries")
-  )
-```
-
-
-```{r}
-final_cleaned_all |>
-  mutate(
-    domaine = str_remove_all(
-      indicator_name,
-      "Women with high empowerment in the | domain \\(%\\)"
-    )
-  ) |>
-  filter(domaine == "decision-making") |>
-  group_by(codecountry, muslim_country) |>
-  summarise(
-    score_moyen = mean(estimate, na.rm = TRUE),
-    .groups = "drop"
-  ) |>
-  ggplot(aes(x = muslim_country, y = score_moyen, fill = muslim_country)) +
-  geom_boxplot(alpha = 0.6, outlier.shape = NA) +
-  geom_jitter(width = 0.15, alpha = 0.4, size = 1) +
-  labs(
-    title = "Women's empowerment in the decision-making domain",
-    x = "",
-    y = "Share of women with high empowerment (%)"
-  ) +
-  theme_minimal() +
-  theme(legend.position = "none")
-
-```
-
-```{r}
-final_recent |>
-  group_by(muslim_countries, domaine) |>
-  summarise(
-    mean_empowerment = mean(empowerment, na.rm = TRUE),
-    sd_empowerment = sd(empowerment, na.rm = TRUE),
-    n = n(),
-    .groups = "drop"
-  ) |>
-  ggplot(aes(x = muslim_countries, y = mean_empowerment, fill = muslim_countries)) +
-  geom_col(width = 0.6) +
-  geom_errorbar(
-    aes(ymin = mean_empowerment - sd_empowerment,
-        ymax = mean_empowerment + sd_empowerment),
-    width = 0.2
-  ) +
-  facet_wrap(~ domaine, scales = "free_y") +
-  labs(
-    title = "Average women's empowerment by domain and country group",
-    x = "",
-    y = "Mean empowerment index"
-  ) +
-  theme_minimal() +
-  theme(
-    legend.position = "none",
-    strip.text = element_text(face = "bold")
-  )
-
-```
-
 ### Geographical analysis 
 
 
@@ -804,21 +710,29 @@ ggplot(df_dumbbell) +
 In this part we are using a dataset including the GDP of each country and we created a region.
 
 To compute our different tests, we will do 4 hypothesis : 
+
 1° **the ability of women to empower themselves in the social sphere** depends on
 political freedom and their ability to access formal financial services
 To test this we will use : 
+
 - as a dependent variable : women empowerment in the social domain 
+
 - as an explicative variable : voice_accountability, has_bank_account, digital_payments and
 log_gdp
 
-2° **The ability of women to empower themselves in violent situations**
+2° **The ability of women to empower themselves in violent situations** depends on political stability, the power of law within a country and the ability to save money on a bank account  
+
 To test this we will use 
+
 - as a dependent variable : women attitude toward violence 
+
 - as an explicative variable : log_gdp, political_stability, rule_of_law, save_bank_account
 
 3° **The ability of women to empower themselves in the decision-making domain** 
 To test this we will use : 
+
 - as a dependent variable : women empowerment in the decision-making domain 
+
 - as an explicative variable : log_gdp, voice_accountability, rule_of_law, borrow_start_business
 
 
@@ -837,12 +751,12 @@ The empirical results reveal a complex relationship between economic
 development, technology, and social empowerment:
 
 -   **The Dominance of GDP in Development**: The coefficient for Log GDP
-    per capita is positive and highly significant (β=19.05,p<0.001).
+    per capita is positive and highly significant ( β =19.05,p<0.001).
     This confirms that national wealth remains the primary engine for
     social independence, likely by increasing access to education,
     infrastructure, and health services for women.
 
--   **The effect of freedom and democracy** : the access to freedom and especially free speech             surprisingly does not allow for women empowerment in the social domain. On the contrary, it has a      significant negative effect on women empowerment (β=−0,124,p<0.01)
+-   **The effect of freedom and democracy** : the access to freedom and especially free speech surprisingly does not allow for women empowerment in the social domain. On the contrary, it has a  significant negative effect on women empowerment (β=−0,124,p<0.01)
 
 -   **The Digital Paradox**: The Digital Payment variable shows a
     significant negative coefficient (β=−22,736,p<0.05). This
@@ -852,6 +766,10 @@ development, technology, and social empowerment:
     reflect a "participation paradox" where digital tools are prevalent
     in societies where physical mobility remains restricted, or where
     digital surveillance offsets the benefits of financial inclusion.
+    
+Perhaps we could also explain that by saying that digital finance may increase women's economic activities without reducing domestic responsibilities, this may intensify time constraints and limiting their participation in social life. 
+
+Another plausible explanation for these strange results may be that endogeneity or omitted variable bias related to unobserved social practices, which are not revealed within this dataset. 
 
 **Attitude toward violence**
 
@@ -863,6 +781,9 @@ results_violence <- coeftest(fit_violence, vcov = vcovHC(fit_violence, type = "H
 print(results_violence)
 ```
 
+This model examines the factors influencing women's rejection of domestic violence. The results, estimated with robust standard errors (HC1), highlight three primary dynamics : first, national wealth again (Log GDP) is a powerful and highly significant predictor (β=5.35,p<0.001), confirming that economic development is a fundamental driver for shifting social norms toward the rejection of violence. Second, formal financial inclusion through savings (save_bank_account) shows the strongest positive impact (β=20.08,p<0.001), suggesting that an independent "security buffer" significantly strengthens women's bargaining power and agency. Finally, the negative correlation with Rule of Law (β=−0.66,p<0.001) suggests a potential reporting bias: as legal frameworks strengthen and awareness grows, women may become more critical of violence and less likely to normalize it, leading to more conservative empowerment scores despite an improving institutional environment.
+
+
 ```{r}
 fit_decision <- lm(estimate ~ log_gdp + voice_accountability + borrow_start_business, 
                    data = final_with_gdp %>% filter(domaine == "decision-making"))
@@ -872,37 +793,41 @@ print(results_decision)
 ```
 
 This model reveals three different things : 
-- **the power of economic growth**: the effect of Log GDP is even stronger here (β=32.28) than in
-the Social domain. This suggest that at the macro level, national wealth
-is a prerequisite for women to gain agency in household
-decision-making. 
-- **The effect of Voice and accountability** : The
-coefficient is negative and highly significant (β=−1.004). It suggests
-that in countries with higher political freedom and citizen
-participation, women's reported power in domestic decisions actually
-tends to be lower. 
-- **The Banker lever** : Unlike the "Digital Payment"
-paradox found earlier, Having a Bank Account is a very strong positive
-predictor (β=19.07).
+- *Positive Institutional Synergy* : Unlike the previous models, Voice and Accountability shows a positive and highly significant correlation with domestic decision-making (β=0.38,p<0.001). This suggests that political freedom and the ability to participate in the public sphere may act as a catalyst for women to claim more authority within the private domestic sphere.
+
+- *The Entrepreneurial Credit Gap* : Interestingly, borrowing to start a business (borrow_start_business) does not have a statistically significant impact on decision-making power (β=1.88,p>0.1). As argued by Bernhardt et al. (2019), financial resources targeted at women are often redirected toward their husbands' activities. This implies that while a loan is officially registered to a woman, the economic returns and the subsequent power of decision are captured by the male spouse. Consequently, access to credit alone, without addressing the intra-household power dynamics, may fail to enhance women's domestic agency.
 
 ### Testing model's robustness
+In this part we are trying to identify whether the model that we have already tested are robust or if a lack of robustness could explain some strange results that we obtained. 
 
 ```{r}
+cat("=== VIF: Social Model ===\n")
 vif_social <- vif(fit) 
 print(vif_social)
+cat("\n") 
 
+cat("=== VIF: Violence Model ===\n")
 vif_violence <- vif(fit_violence)
 print(vif_violence)
+cat("\n")
 
+cat("=== VIF: Decision Model ===\n")
 vif_decision <- vif(fit_decision)
 print(vif_decision)
+cat("\n")
 ```
+In our three models, multicollinearity appears to be moderate, as all VIF values fall between 1 and 5. Nevertheless, this indicates that some degree of multicollinearity is present, suggesting that the models we tested are not entirely free from correlation among the predictors. The last model appears to be more robust, as it exhibits lower multicollinearity compared to the others.
 
 **Breusch-Pagan test (heteroscedasticity)**
 
 ```{r}
+cat("=== Breusch-Pagan test : Social Model ===\n")
 bptest(fit)
+
+cat("=== Breusch-Pagan test : Violence Model ===\n")
 bptest(fit_violence)
+
+cat("=== Breusch-Pagan test : Decision-making Model ===\n")
 bptest(fit_decision)
 ```
 
@@ -924,10 +849,29 @@ financial inclusion—is not artificially inflated.
 **Cook test**
 
 ```{r}
-plot(fit, which = 4)
-plot(fit_violence, which = 4)
-plot(fit_decision, which = 4)
+library(car)
+cooks_social <- cooks.distance(fit)
+plot(1:length(cooks_social), cooks_social, type = "h", 
+     xlab = "Observation index", ylab = "Cook's Distance",
+     main = "Cook's Distance for Social Model")
+abline(h = 1, col = "red", lty = 2)
+
+cooks_violence <- cooks.distance(fit_violence)
+plot(1:length(cooks_violence), cooks_violence, type = "h", 
+     xlab = "Observation index", ylab = "Cook's Distance",
+     main = "Cook's Distance for Violence Model")
+abline(h = 1, col = "red", lty = 2)
+
+
+cooks_decision <- cooks.distance(fit_decision)
+plot(1:length(cooks_decision), cooks_decision, type = "h", 
+     xlab = "Observation index", ylab = "Cook's Distance",
+     main = "Cook's Distance for Decision Model")
+abline(h = 1, col = "red", lty = 2)
+
 ```
+Cook’s Distance analysis shows that none of the observations in our three models are highly influential, as all values remain well below the common threshold of 1.
+
 
 **Model Reliability and Predictive Power Statistics**
 ```{r}
@@ -957,34 +901,34 @@ knitr::kable(model_performance, digits = 3, caption = "Global Model Performance 
 With this regression we are trying to see whether the impact of financial inclusion depend on national economic development.It seems that despite our analysis the R squared is still low. 
 To explain this significant difference of the value of the R squared between our decision making model and empowerment in the social domain we can perhaps use some studies which show that social mobility and empowerment is governed by informal institutions. 
 
-```{r}
-fit_social_inter <- lm(estimate ~ log_gdp * has_bank_account + voice_accountability, 
-                       data = final_with_gdp %>% filter(domaine == "social independence"))
 
-results_inter <- coeftest(fit_social_inter, vcov = vcovHC(fit_social_inter, type = "HC1"))
-print(results_inter)
+A faire :
 
-summary(fit_social_inter)$adj.r.squared
-```
-
-
-
-
-## Diagnosis tests
-
-A faire : 
-- améliorer la forme du devoir : formulation de la question de recherche doit être mieux amenée, contextualisée, éventuellement en faisant appel à de la littérature scientifique
-- mieux expliciter les résultats rigoureusement : faire attention dans les interprétations graphiques à ne pas faire d'analyse causales mais simplement des corrélations entre variables 
-A un moment dans l'analyse graphique on a très peu de données sur les pays pauvres : expliciter pourquoi et dire que donc on a un biais dans notre analyse 
-- pour chacun des résultats étonnant que l'on a dans les régressions ou interprétations graphiques trouver de la littérature scientifique et donner une analyse temporelle dans le temps de l'empowerment des femmes (si elle existe qui permettrait d'expliquer ces résutlats : exemple le digital paradox, expliquer le voice and accountability paradox sur
-l'émancipation des femmes dans la sphère sociale)
 - sur la partie régression économétrique : mettre une table pour chacune des variables utilisées avec min/max/ nombre d'observations, améliorer l'interprétation des régressions / OLS, faire l'interprétation des tests VIF (évalue la multicolinéarité) / Breusch Pagan (homoscédasticité) / test de Cook, ajouter une analyse des limites de notre travail, éventuellement améliorer la clarté de la présentation de nos résultats avec une table qui résume tout 
-- ajouter un test de Khi 2
+
 Eventuellement on peut ajouter d'autres régressions ou modifier les hypothèses initiales qui sous tendent les régressions, l'idée était de faire un premier travail puis d'ajuster, éventuellement ajouter au début une analyse géographique en ajoutant une variable région (déjà présente dans le dataset : final_with_gdp)
 
+Ajouter un tableau qui résume l'ultime dataset, description graphique géographique, rédiger la conclusion et les limites de nos analyses 
 
+Limits of our analysis : 
+A major limitation of our analysis is the selection bias inherent in the available datasets. Our graphical and econometric results primarily reflect countries where data collection is institutionalized. Low-income countries and fragile states are significantly underrepresented due to missing values in the Findex or WHO surveys. Therefore, our findings may not be fully generalizable to the most vulnerable populations, where the barriers to empowerment are likely even more structural and severe than those observed in our sample
 
 
 
 
 ## Conclusion
+
+
+
+## Bibliography 
+
+"The roots of Gender Inequality in Developing Countries" Department of Economics, Northwestern University, Evanston, Illinois S.Jayachandran (2015)
+
+"Household Matters: Revisiting the Returns to Capital among Female Microentrepreneurs" Bernhardt et al AMERICAN ECONOMIC REVIEW (2019) 
+
+"The Quiet Revolution That Transformed Women's Employment, Education, and Family" Claudia Goldin AMERICAN ECONOMIC REVIEW (2006)
+
+
+
+
+
