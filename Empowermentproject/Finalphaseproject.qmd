@@ -243,10 +243,7 @@ final_cleaned_all |>
 
 The historical data (1999-2023) reveals an overall upward trend in
 women's empowerment, particularly in the Attitude to Violence and
-Decision-Making domains across all income groups. However, this progress
-is characterized by significant volatility, suggesting that empowerment
-is not a linear process but one sensitive to periodic socio-economic
-shocks. Notably, the Social Independence domain shows a concerning
+Decision-Making domains across all income groups. Notably, the Social Independence domain shows a concerning
 stagnation, or even a slight decline in some Upper-Middle and Low-Income
 contexts, indicating that physical mobility and financial autonomy
 remain the most difficult barriers to break, despite improvements in
@@ -899,7 +896,6 @@ knitr::kable(model_performance, digits = 3, caption = "Global Model Performance 
 ```
 
 With this regression we are trying to see whether the impact of financial inclusion depend on national economic development.It seems that despite our analysis the R squared is still low. 
-To explain this significant difference of the value of the R squared between our decision making model and empowerment in the social domain we can perhaps use some studies which show that social mobility and empowerment is governed by informal institutions. 
 
 
 A faire :
@@ -908,7 +904,7 @@ A faire :
 
 Eventuellement on peut ajouter d'autres régressions ou modifier les hypothèses initiales qui sous tendent les régressions, l'idée était de faire un premier travail puis d'ajuster, éventuellement ajouter au début une analyse géographique en ajoutant une variable région (déjà présente dans le dataset : final_with_gdp)
 
-Ajouter un tableau qui résume l'ultime dataset, description graphique géographique, rédiger la conclusion et les limites de nos analyses 
+Ajouter un tableau qui résume l'ultime dataset, description graphique géographique, rédiger la conclusion et les limites de nos analyses , raccourcir les titres, 
 
 Limits of our analysis : 
 A major limitation of our analysis is the selection bias inherent in the available datasets. Our graphical and econometric results primarily reflect countries where data collection is institutionalized. Low-income countries and fragile states are significantly underrepresented due to missing values in the Findex or WHO surveys. Therefore, our findings may not be fully generalizable to the most vulnerable populations, where the barriers to empowerment are likely even more structural and severe than those observed in our sample
