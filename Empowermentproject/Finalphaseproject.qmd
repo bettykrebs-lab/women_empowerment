@@ -207,6 +207,43 @@ final_recent <- readRDS(here("datafinalproject", "final_recent.rds"))
 final_with_gdp <- readRDS(here("datafinalproject", "final_with_gdp.rds"))
 ```
 
+```{r}
+dataset_names <- c(
+  "WHO Empowerment (SWPER)", 
+  "Global Findex 2025", 
+  "Worldwide Governance Indicators", 
+  "Final Merged Dataset"
+)
+
+observations <- c(
+  nrow(Empowerment), 
+  nrow(Findex), 
+  nrow(WGI), 
+  nrow(final_recent)
+)
+
+variables <- c(
+  ncol(Empowerment), 
+  ncol(Findex), 
+  ncol(WGI), 
+  ncol(final_recent)
+)
+
+
+summary_df <- data.frame(
+  "Dataset" = dataset_names,
+  "Observations" = observations,
+  "Variables" = variables
+)
+
+
+kable(summary_df, 
+      align = "lcc", # Dataset à gauche (l), chiffres centrés (c)
+      caption = "Table: Data structure across source and final datasets")
+```
+
+
+
 ## Graphical representations
 
 In this part we will do graphical analysis to understand what is
@@ -460,8 +497,7 @@ final_recent |>
   scale_color_brewer(palette = "Set1") +
   scale_fill_brewer(palette = "Set1") +
   labs(
-    title = "Correlation between the development of digital payment on Women's Empowerment",
-    subtitle = "Size of dots represents the number of countries; Shaded areas show confidence intervals",
+    title = "Correlation development of digital payment vs Women's Empowerment",
     x = "% of population with Digital Payments",
     y = "Empowerment Score (%)",
     size = "Number of Countries"
@@ -502,8 +538,7 @@ final_recent |>
   scale_color_brewer(palette = "Set1") +
   scale_fill_brewer(palette = "Set1") +
   labs(
-    title = "Correlation between the share of population which has a bank accont and Women's Empowerment",
-    subtitle = "Size of dots represents the number of countries; Shaded areas show confidence intervals",
+    title = "Correlation has a bank account vs Women's Empowerment",
     x = "% of population who has a bank account",
     y = "Empowerment Score (%)",
     size = "Number of Countries"
@@ -544,8 +579,7 @@ final_cleaned_all |>
   scale_color_brewer(palette = "Set1") +
   scale_fill_brewer(palette = "Set1") +
   labs(
-    title = "Correlation between the share of population which borrow to start its business and Women's Empowerment",
-    subtitle = "Size of dots represents the number of countries; Shaded areas show confidence intervals",
+    title = "Correlation borrow to start its business vs Women's Empowerment",
     x = "% of population who borrow to start a business",
     y = "Empowerment Score (%)",
     size = "Number of Countries"
@@ -583,8 +617,7 @@ final_recent |>
   scale_color_brewer(palette = "Set1") +
   scale_fill_brewer(palette = "Set1") +
   labs(
-    title = "Correlation between the share of population who save on a bank account and Women's Empowerment",
-    subtitle = "Size of dots represents the number of countries; Shaded areas show confidence intervals",
+    title = "Correlation save a bank account vs. Women's Empowerment",
     x = "% of population who saves of a bank account",
     y = "Empowerment Score (%)",
     size = "Number of Countries"
@@ -846,7 +879,8 @@ financial inclusion—is not artificially inflated.
 **Cook test**
 
 ```{r}
-library(car)
+par(mfrow = c(1, 3))
+par(mar = c(4, 4, 3, 1))
 cooks_social <- cooks.distance(fit)
 plot(1:length(cooks_social), cooks_social, type = "h", 
      xlab = "Observation index", ylab = "Cook's Distance",
@@ -882,32 +916,29 @@ get_model_stats <- function(model) {
   )
 }
 
-stats_social <- get_model_stats(fit)
-stats_violence <- get_model_stats(fit_violence)
-stats_decision <- get_model_stats(fit_decision)
 
 model_performance <- bind_rows(
-  mutate(stats_social, Model = "Social"),
-  mutate(stats_violence, Model = "Violence"),
-  mutate(stats_decision, Model = "Decision")
+  data.frame(Model = "Social Independence", get_model_stats(fit)),
+  data.frame(Model = "Attitude to Violence", get_model_stats(fit_violence)),
+  data.frame(Model = "Decision-Making", get_model_stats(fit_decision))
 )
 
-knitr::kable(model_performance, digits = 3, caption = "Global Model Performance Indicators")
+knitr::kable(model_performance, 
+             digits = 3, 
+             row.names = FALSE, # Supprime les numéros de ligne inutiles à gauche
+             caption = "Global Model Performance Indicators",
+             col.names = c("Model Domain", "R²", "Adjusted R²", "F-Statistic", "p-value (F)"))
 ```
 
-With this regression we are trying to see whether the impact of financial inclusion depend on national economic development.It seems that despite our analysis the R squared is still low. 
+ 
 
+**Limits of our analysis** : 
+A major limitation of our analysis is the selection bias inherent in the available datasets. Our graphical and econometric results primarily reflect countries where data collection is institutionalized. Low-income countries and fragile states are significantly underrepresented due to missing values in the Findex or WHO surveys. Therefore, our findings may not be fully generalizable to the most vulnerable populations, where the barriers to empowerment are likely even more structural and severe than those observed in our sample. Furthermore since our analysis relies in cross-sectional data, it limits causal interpretation and misses long term trends. Finally the ability of our different models to explain women's empowerment differ for each type of empowerment that we observe, for instance our model fail to explain efficiently women's empowerment in the social or attitude to violence domains.
 
 A faire :
 
-- sur la partie régression économétrique : mettre une table pour chacune des variables utilisées avec min/max/ nombre d'observations, améliorer l'interprétation des régressions / OLS, faire l'interprétation des tests VIF (évalue la multicolinéarité) / Breusch Pagan (homoscédasticité) / test de Cook, ajouter une analyse des limites de notre travail, éventuellement améliorer la clarté de la présentation de nos résultats avec une table qui résume tout 
+description graphique géographique, rédiger la conclusion
 
-Eventuellement on peut ajouter d'autres régressions ou modifier les hypothèses initiales qui sous tendent les régressions, l'idée était de faire un premier travail puis d'ajuster, éventuellement ajouter au début une analyse géographique en ajoutant une variable région (déjà présente dans le dataset : final_with_gdp)
-
-Ajouter un tableau qui résume l'ultime dataset, description graphique géographique, rédiger la conclusion et les limites de nos analyses , raccourcir les titres, 
-
-Limits of our analysis : 
-A major limitation of our analysis is the selection bias inherent in the available datasets. Our graphical and econometric results primarily reflect countries where data collection is institutionalized. Low-income countries and fragile states are significantly underrepresented due to missing values in the Findex or WHO surveys. Therefore, our findings may not be fully generalizable to the most vulnerable populations, where the barriers to empowerment are likely even more structural and severe than those observed in our sample
 
 
 
